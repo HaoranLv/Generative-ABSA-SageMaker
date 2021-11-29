@@ -10,8 +10,8 @@ image=$1
 
 if [ "$image" == "" ]
 then
-    echo "Use image name cpt"
-    image="cpt"
+    echo "Use image name absa"
+    image="absa"
 fi
 
 # Get the account number associated with the current IAM credentials

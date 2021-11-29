@@ -8,15 +8,14 @@ import datetime
 import warnings
 import numpy as np
 import torch
+from absa import T5FineTuner
 import time
 from transformers import (
     AutoConfig,
     AutoModelForSeq2SeqLM,
     AutoTokenizer,
-    DataCollatorForSeq2Seq,
-    HfArgumentParser,
-    Seq2SeqTrainer,
-    Seq2SeqTrainingArguments,
+    T5ForConditionalGeneration, 
+    T5Tokenizer,
     set_seed,
 )
 warnings.filterwarnings("ignore",category=FutureWarning)
@@ -45,24 +44,43 @@ print ("loading pretrained models!")
 # tokenizer = BertTokenizer.from_pretrained('6')
 #model.eval()  # Set in evaluation mode
 
-tokenizer = AutoTokenizer.from_pretrained('pegasus')
-model = AutoModelForSeq2SeqLM.from_pretrained('pegasus')
+# tokenizer = AutoTokenizer.from_pretrained('pegasus')
+# model = AutoModelForSeq2SeqLM.from_pretrained('pegasus')
+n_gpu=0
+max_seq_length=512
+device = torch.device(f'cuda:{n_gpu}')
+checkpoint = './model/cktepoch=15_v1.ckpt'
+model_ckpt = torch.load(checkpoint, map_location=device)
+model = T5FineTuner(model_ckpt['hyper_parameters'])
+model.load_state_dict(model_ckpt['state_dict'])
+tokenizer = T5Tokenizer.from_pretrained('lemon234071/t5-base-Chinese')
 
-model.resize_token_embeddings(len(tokenizer))
+model.model.to(device)
+model.model.eval()
+# tokenizer = AutoTokenizer.from_pretrained('model')
+# model = AutoModelForSeq2SeqLM.from_pretrained('model')
+
+# model.resize_token_embeddings(len(tokenizer))
 print ("<<<< loading pretrained models success")
 
-def summary_infer(text):
+def absa_infer(data):
+    """do predict"""
     t1 = datetime.datetime.now()
-    
-    inputs = tokenizer(text, return_tensors="pt",max_length=256)
-    outputs = model.generate(inputs['input_ids'], max_length=64, top_p=0.95)
-    generated = tokenizer.decode(outputs[0])
-
-    print("prediction result: ",generated)
-    
-    t2 = datetime.datetime.now()
+    inputs = tokenizer(
+              data, max_length=max_seq_length, pad_to_max_length=True, truncation=True,
+              return_tensors="pt",
+            )
+    outs = model.model.generate(input_ids=inputs["input_ids"].to(device), 
+                                    attention_mask=inputs["attention_mask"].to(device), 
+                                    max_length=1024)
+#     print(outs[0])
+    dec=tokenizer.decode(outs[0], skip_special_tokens=True)
     print("<<<<done")
-    return generated, str(t2 - t1)
+    print("prediction result: ",dec)
+    t2 = datetime.datetime.now()
+    return dec ,str(t2 - t1)
+
+
 def cpt_infer(text):
     t1 = datetime.datetime.now()
     
@@ -104,7 +122,7 @@ def invocations():
     data_input = data['data']
 
     #inference
-    res, infer_time = summary_infer(data_input)
+    res, infer_time = absa_infer(data_input)
     
     print("Done inference! ")
     print("res: ", res)

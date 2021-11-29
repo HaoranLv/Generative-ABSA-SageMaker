@@ -3,3 +3,5 @@ sentencepiece==0.1.91
 pytorch_lightning==0.8.1
 jieba
 editdistance
+imblearn
+emoji

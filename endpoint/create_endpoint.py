@@ -21,7 +21,7 @@ def parse_arguments():
         "--endpoint_ecr_image_path",
         type=str,
         help=" ",
-        default="847380964353.dkr.ecr.ap-northeast-1.amazonaws.com/pegasus-hp"
+        default="847380964353.dkr.ecr.ap-northeast-1.amazonaws.com/absa"
     )
     parser.add_argument(
         "-en",
@@ -29,7 +29,7 @@ def parse_arguments():
         type=str,
         nargs="?",
         help="When set, this argument ",
-        default="pegasushp"
+        default="absa"
     )
     parser.add_argument(
         "-i",

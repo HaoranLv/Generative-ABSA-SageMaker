@@ -11,8 +11,7 @@ ENV PATH="/opt/program:${PATH}"
 # SageMaker requirements
 ##########################################################################################
 ## install flask
-RUN pip install networkx==2.3 flask gevent gunicorn boto3 transformers==4.6.0 datasets==1.11.0 -i https://opentuna.cn/pypi/web/simple
-
+RUN pip install networkx==2.3 flask gevent gunicorn boto3 transformers==4.6.0 datasets==1.11.0 sentencepiece==0.1.91 pytorch_lightning==0.8.1 jieba editdistance -i https://opentuna.cn/pypi/web/simple
 ### Install nginx notebook
 RUN apt-get -y update && apt-get install -y --no-install-recommends \
          wget \
@@ -26,8 +25,8 @@ RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
 # Set up the program in the image
 COPY * /opt/program/
-COPY pegasus/* /opt/program/pegasus/
+COPY model/* /opt/program/model/
 WORKDIR /opt/program
-
+# RUN pip install -r requirements.txt
 ENTRYPOINT ["python", "serve.py"]
 

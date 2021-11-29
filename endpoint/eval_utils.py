@@ -52,13 +52,13 @@ def extract_spans_extraction(task, seq):
             for pt in all_pt:
                 pt = pt[1:-1]
                 try:
-                    # a,b,c,d= pt.split(', ')
+                    a,b,c,d= pt.split(', ')
 
-                    a=pt.split(', ')
-                    if len(a)==8:
-                        aa,b,c,d,e,f=[a[0],a[1],a[2],a[3],a[4]+', '+a[5],a[6]+', '+a[7]]
-                    else:
-                        a, b, c, d ,e , f='', '', '', '','',''
+#                     a=pt.split(', ')
+#                     if len(a)==8:
+#                         aa,b,c,d,e,f=[a[0],a[1],a[2],a[3],a[4]+', '+a[5],a[6]+', '+a[7]]
+#                     else:
+#                         a, b, c, d ,e , f='', '', '', '','',''
                         
                 except ValueError:
                     a, b, c, d ,e , f= '', '', '', '','',''
