@@ -36,7 +36,7 @@ python -u cpt.py --task tasd-cn \
             --learning_rate 3e-4 \
             --num_train_epochs 15  > logs/noemj_cpt_3e-4.log
 
-# python -u train_ctrip.py --task tasd-cn \
+# python -u main.py --task tasd-cn \
 #             --dataset ctrip \
 #             --paradigm extraction \
 #             --n_gpu '2' \
@@ -48,7 +48,7 @@ python -u cpt.py --task tasd-cn \
 #             --learning_rate 5e-5 \
 #             --num_train_epochs 25  > logs/emj1119_correct5e-5.log
 
-# python -u train_ctrip.py --task tasd-cn \
+# python -u main.py --task tasd-cn \
 #             --dataset ctrip \
 #             --paradigm annotation \
 #             --n_gpu '2','3' \

@@ -1,0 +1,37 @@
+RelativeURLs=true
+CanonifyURLs=true
+languageCode = "en-US"
+defaultContentLanguage = "en"
+
+title = "SpotBot Workshop"
+theme = "learn"
+metaDataFormat = "yaml"
+defaultContentLanguageInSubdir= true
+
+uglyurls = true
+sectionPagesMenu = "main"
+pygmentsCodeFences = true
+pygmentsStyle = "monokai"
+
+[params]
+  description = "My AWS Workshop"
+  author = "Jane Architect"
+  disableBreadcrumb = false
+  disableNextPrev = false
+  themeVariant = "aws"
+  disableSearch = false
+  disableAssetsBusting = true
+  disableLanguageSwitchingButton = false
+  disableShortcutsTitle = true
+  disableInlineCopyToClipBoard = true
+
+  showVisitedLinks = true
+  ordersectionsby = "weight"
+
+[outputs]
+home = [ "HTML", "RSS", "JSON"]
+
+[blackfriday]
+plainIDAnchors = true
+hrefTargetBlank = true
+

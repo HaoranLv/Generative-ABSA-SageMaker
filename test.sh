@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-python test.py --task tasd-cn \
+python main.py --task tasd-cn \
             --dataset ctrip \
             --paradigm extraction \
             --n_gpu 0 \
