@@ -22,7 +22,7 @@
 #             --gradient_accumulation_steps 2 \
 #             --eval_batch_size 2 \
 #             --learning_rate 3e-4 \
-#             --num_train_epochs 15  > noemj_bart_3e-4.log
+#             --num_train_epochs 15  > logs/noemj_bart_3e-4.log
 
 python -u cpt.py --task tasd-cn \
             --dataset ctrip \
@@ -34,7 +34,7 @@ python -u cpt.py --task tasd-cn \
             --gradient_accumulation_steps 2 \
             --eval_batch_size 2 \
             --learning_rate 3e-4 \
-            --num_train_epochs 15  > noemj_cpt_3e-4.log
+            --num_train_epochs 15  > logs/noemj_cpt_3e-4.log
 
 # python -u train_ctrip.py --task tasd-cn \
 #             --dataset ctrip \
@@ -46,7 +46,7 @@ python -u cpt.py --task tasd-cn \
 #             --gradient_accumulation_steps 2 \
 #             --eval_batch_size 2 \
 #             --learning_rate 5e-5 \
-#             --num_train_epochs 25  > emj1119_correct5e-5.log
+#             --num_train_epochs 25  > logs/emj1119_correct5e-5.log
 
 # python -u train_ctrip.py --task tasd-cn \
 #             --dataset ctrip \
@@ -58,4 +58,4 @@ python -u cpt.py --task tasd-cn \
 #             --gradient_accumulation_steps 2 \
 #             --eval_batch_size 2 \
 #             --learning_rate 5e-5 \
-#             --num_train_epochs 15 #> annotation_noemj1119.log
+#             --num_train_epochs 15 #> logs/annotation_noemj1119.log
