@@ -3,7 +3,7 @@
 import time
 from torch.utils.data import Dataset
 
-senttag2word = {'POS': 'positive', 'NEG': 'negative', 'NEU': 'neutral'}
+senttag2word = {'正': 'positive', '其他': 'negative', '负': 'neutral'}
 
 
 def read_line_examples_from_file(data_path):
@@ -16,9 +16,9 @@ def read_line_examples_from_file(data_path):
         words, labels = [], []
         for line in fp:
             line = line.strip()
-            if line != '':
+            if line != '' and len(line.split('####'))==2:
                 words, tuples = line.split('####')
-                sents.append(words.split())
+                sents.append(words.split(' '))
                 labels.append(eval(tuples))
     print(f"Total examples = {len(sents)}")
     return sents, labels
@@ -81,6 +81,7 @@ def get_annotated_aste_targets(sents, labels):
             ap, op, sent = tup[0], tup[1], tup[2]
             op = [sents[i][j] for j in op]
             # multiple OT for one AP
+            print(sents[i])
             if '[' in sents[i][ap[0]]:
                 # print(i)
                 if len(ap) == 1:
@@ -174,6 +175,63 @@ def get_extraction_tasd_targets(sents, labels):
         targets.append(target)
     return targets
 
+def get_annotated_tasdcn_targets(sents, labels):
+    targets = []
+    num_sents = len(sents)
+    for i in range(num_sents):
+        if len(sents[i])==1:
+            sents[i]=list(sents[i][0])
+        else:
+            sents[i]=list(' '.join(sents[i]))
+        for triplet in labels[i]:
+            at, ac, op, polarity, at_idx, op_idx = triplet
+#             print(sents[i])
+#             print(labels[i])
+            annotation = f"{ac}|{senttag2word[polarity]}"
+            if len(at) == 1:
+                sents[i][at_idx[0]] = f"[{sents[i][at_idx[0]]}|{annotation}]"
+            else:
+                sents[i][at_idx[0]] = f"[{sents[i][at_idx[0]]}"
+                sents[i][at_idx[1]-1] = f"{sents[i][at_idx[1]-1]}|{annotation}]"
+#             print(sents[i])
+        targets.append(sents[i])
+    return targets
+
+def get_extraction_tasdcn_targets(sents, labels):
+    targets = []
+    for label in labels:
+        label_strs=[]
+        for l in label:
+            l=list(l)
+#             l[3]=senttag2word[l[3]]
+            l[4]=str(l[4])
+            l[5]=str(l[5])
+#             label_strs.append('('+', '.join(l[:4])+')')
+            label_strs.append('('+', '.join(l)+')')
+#         label_strs = ['('+', '.join(l[:4])+')' for l in label]
+        target = '; '.join(label_strs)
+        targets.append(target)
+    return targets
+
+def get_extraction_tasdcn2_targets(sents, labels):
+    targets = []
+    for label in labels:
+        
+        label_strs = ['('+', '.join([l[1],l[3]])+')' for l in label]
+        target = '; '.join(label_strs)
+        targets.append(target)
+    return targets
+
+def get_extraction_tasdcn2_xtc_targets(sents, labels):
+    targets = []
+    for label in labels:
+        
+        label_strs = ['('+', '.join([l[0],l[1]])+')' for l in label]
+        target = '; '.join(label_strs)
+        targets.append(target)
+    return targets
+
+
 
 def get_extraction_aste_targets(sents, labels):
     targets = []
@@ -218,6 +276,8 @@ def get_transformed_io(data_path, paradigm, task):
             targets = get_annotated_tasd_targets(sents, labels)
         elif task == 'aope':
             targets = get_annotated_aope_targets(sents, labels)
+        elif task == 'tasd-cn':
+            targets = get_annotated_tasdcn_targets(sents, labels)
         else:
             raise NotImplementedError
     # directly treat label infor as the target
@@ -230,6 +290,12 @@ def get_transformed_io(data_path, paradigm, task):
             targets = get_extraction_tasd_targets(sents, labels)
         elif task == 'aope':
             targets = get_extraction_aope_targets(sents, labels)
+        elif task == 'tasd-cn':
+            targets = get_extraction_tasdcn_targets(sents, labels)
+        elif task == 'tasd-cn2':
+            targets = get_extraction_tasdcn2_targets(sents, labels)
+        elif task == 'tasd-cn2-xtc':
+            targets = get_extraction_tasdcn2_xtc_targets(sents, labels)
         else:
             raise NotImplementedError
     else:
@@ -240,7 +306,7 @@ def get_transformed_io(data_path, paradigm, task):
 
 
 class ABSADataset(Dataset):
-    def __init__(self, tokenizer, data_dir, data_type, paradigm, task, max_len=128):
+    def __init__(self, tokenizer, data_dir, data_type, paradigm, task, max_len=512):
         # 'data/aste/rest16/train.txt'
         self.data_path = f'data/{task}/{data_dir}/{data_type}.txt'
         self.paradigm = paradigm
@@ -274,7 +340,9 @@ class ABSADataset(Dataset):
 
             input = ' '.join(inputs[i]) 
             if self.paradigm == 'annotation':
-                if self.task != 'tasd':
+                if self.task=='tasd-cn':
+                    target = ''.join(targets[i]) 
+                elif self.task != 'tasd':
                     target = ' '.join(targets[i]) 
                 else:
                     target = targets[i]

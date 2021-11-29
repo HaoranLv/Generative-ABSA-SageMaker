@@ -1,4 +1,3 @@
-
 import argparse
 import os
 import logging
@@ -29,13 +28,15 @@ def init_args():
                         help="The name of the task, selected from: [uabsa, aste, tasd, aope]")
     parser.add_argument("--dataset", default='rest14', type=str, required=True,
                         help="The name of the dataset, selected from: [laptop14, rest14, rest15, rest16]")
-    parser.add_argument("--model_name_or_path", default='t5-base', type=str,
+    parser.add_argument("--model_name_or_path", default='lemon234071/t5-base-Chinese', type=str,
                         help="Path to pre-trained model or shortcut name")
     parser.add_argument("--paradigm", default='annotation', type=str, required=True,
                         help="The way to construct target sentence, selected from: [annotation, extraction]")
     parser.add_argument("--do_train", action='store_true', help="Whether to run training.")
     parser.add_argument("--do_eval", action='store_true', help="Whether to run eval on the dev/test set.")
     parser.add_argument("--do_direct_eval", action='store_true', 
+                        help="Whether to run direct eval on the dev/test set.")
+    parser.add_argument("--do_direct_predict", action='store_true', 
                         help="Whether to run direct eval on the dev/test set.")
 
     # Other parameters
@@ -224,9 +225,13 @@ def evaluate(data_loader, model, paradigm, task, sents):
     outputs, targets = [], []
     for batch in tqdm(data_loader):
         # need to push the data to device
+        print(batch['source_ids'])
+        print(batch["target_ids"])
+        print(batch["source_mask"])
+        print(batch["target_mask"])
         outs = model.model.generate(input_ids=batch['source_ids'].to(device), 
                                     attention_mask=batch['source_mask'].to(device), 
-                                    max_length=128)
+                                    max_length=512)
 
         dec = [tokenizer.decode(ids, skip_special_tokens=True) for ids in outs]
         target = [tokenizer.decode(ids, skip_special_tokens=True) for ids in batch["target_ids"]]
@@ -241,22 +246,39 @@ def evaluate(data_loader, model, paradigm, task, sents):
 
     return raw_scores, fixed_scores
 
+def predict(data,tokenizer,model):
+    """do predict"""
+    device = torch.device(f'cuda:{args.n_gpu}')
+    model.model.to(device)
+    model.model.eval()
+    inputs = tokenizer(
+              data, max_length=args.max_seq_length, pad_to_max_length=True, truncation=True,
+              return_tensors="pt",
+            )
+    outs = model.model.generate(input_ids=inputs["input_ids"].to(device), 
+                                    attention_mask=inputs["attention_mask"].to(device), 
+                                    max_length=1024)
+    print(outs[0])
+    dec=tokenizer.decode(outs[0], skip_special_tokens=True)
+    
+
+    return dec
 
 # initialization
 args = init_args()
 print("\n", "="*30, f"NEW EXP: {args.task.upper()} on {args.dataset}", "="*30, "\n")
 
 seed_everything(args.seed)
-# print(args.model_name_or_path)
-tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path)
 
-# show one sample to check the sanity of the code and the expected output
-print(f"Here is an example (from dev set) under `{args.paradigm}` paradigm:")
-dataset = ABSADataset(tokenizer=tokenizer, data_dir=args.dataset, data_type='dev', 
-                      paradigm=args.paradigm, task=args.task, max_len=args.max_seq_length)
-data_sample = dataset[1]  # a random data sample
-print('Input :', tokenizer.decode(data_sample['source_ids'], skip_special_tokens=True))
-print('Output:', tokenizer.decode(data_sample['target_ids'], skip_special_tokens=True))
+# tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path)
+
+# # show one sample to check the sanity of the code and the expected output
+# print(f"Here is an example (from dev set) under `{args.paradigm}` paradigm:")
+# dataset = ABSADataset(tokenizer=tokenizer, data_dir=args.dataset, data_type='dev', 
+#                       paradigm=args.paradigm, task=args.task, max_len=args.max_seq_length)
+# data_sample = dataset[2]  # a random data sample
+# print('Input :', tokenizer.decode(data_sample['source_ids'], skip_special_tokens=True))
+# print('Output:', tokenizer.decode(data_sample['target_ids'], skip_special_tokens=True))
 
 
 # training process
@@ -284,7 +306,7 @@ if args.do_train:
     trainer.fit(model)
 
     # save the final model
-    model.model.save_pretrained(args.output_dir)
+    # model.model.save_pretrained(args.output_dir)
 
     print("Finish training and saving the model!")
 
@@ -394,3 +416,44 @@ if args.do_direct_eval:
     log_str += f"{local_time}\n{exp_settings}\n{exp_results}\n\n"
     with open(log_file_path, "a+") as f:
         f.write(log_str)
+
+# prediction process
+if args.do_direct_predict:
+    print("\n****** Conduct predicting with the last state ******")
+    checkpoint='./outputs/tasd-cn/ctrip/extraction/cktepoch=15_v1.ckpt'
+#     checkpoint='./outputs/tasd-cn/ctrip/annotation/cktepoch=7.ckpt'
+    print(f"\nLoad the trained model from {checkpoint}...")
+    device=torch.device('cuda:0')
+    model_ckpt = torch.load(checkpoint,map_location=device)
+    model = T5FineTuner(model_ckpt['hyper_parameters'])
+    model.load_state_dict(model_ckpt['state_dict'])
+    tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path)
+    
+    sents=['早餐一般般，勉勉强强填饱肚子，样式可选性不多，可能是疫情的影响吧。不过酒店的服务不错，五个小孩早餐都送了，点👍。由于酒店历史有点长，所以设施感觉一般般，整体还可以，三钻吧',
+           '楼下就是一家吃鸡的饭店，好多人排队，门前就是公交站，周边就是老城区吃东西的地方很多，房间还算干净宽敞',
+           '孩子超级开心，酒店很贴心，还有儿童拖鞋，儿童用品，儿童游乐区，送了小玩具孩子很喜欢。好评好评。',
+           '房间网速超快，打游戏网络一点都不卡，和朋友们一起开黑真的很棒，房间卫生打扫的也很干净整洁，室内设施也很齐全，性价比也是很高的',
+           '大堂居然有人抽烟.工作人员不制止.电梯突然关门差点夹到孩子.房间设施简陋.卫生间地巾是破的.窗帘很脏.电视只有十个台.卫生间马桶盖坏的.洗澡水时冷时热.总之很差很差的体验.下次肯定不会再住',
+           '来上海迪斯尼推荐这家酒店，很舒服，细节做得很好，因为是亲子房，洗漱台下面有个小凳子，有送儿童牙刷，昨天知道里面住的两个小朋友，整理房间的时候就送了两个儿童牙刷，拖鞋也有儿童尺寸的，有浦东机场接送机服务，离迪斯尼很近，10分钟不到的路程，也有班车，如果纯玩迪斯尼住这里最佳，当然土豪可以住迪斯尼景区的酒店咯。'
+           '为了带孩子去迪士尼玩才订的这家，打车的司机怎么也找不到，三个人开着导航使劲绕圈真是。好在房间还是很不错的，有秋千给孩子玩，还有浴缸可以泡澡，总体还是不错的。宝宝对室外的滑梯特别感兴趣，管家也很不错，带宝宝还给宝宝另外准备了早餐，总体满意',
+           '客栈到码头非常近。码头下船以后出门左边，转一个湾就到，到普济寺也很方便步行几百米，装修比较有风格，住的二楼房间不错，老板很热情，旁边吃饭也很方便，出门就是好几个饭店，还有小卖部。客栈卫生也不错，房间安静，下次过去还住这里。这次是我一个人去的，定了一个双人标间。房间比较紧凑，但是又很有风格。如果有时间真的可以在这里小住一段时间。喜欢做民宿的朋友，强烈给大家推荐普陀山普陀小院客栈。对了，顺便给大家说一下。线路一，客栈出门，到马路边上，往右走，就是去南海观音。也可以到码头坐大巴车，五块钱到南海观音停车场。然后可以从南海观音出来以后，到紫竹林和不肯去观音寺。紫竹林出来以后也可以选择步行到普济寺，也可以做大巴车，五块钱到普济寺。线路二，往左走就是去普济寺，也可以坐大巴车，到西山景区，下车往前走200米左右，就是普济寺。普济寺出来以后可以去百子堂。然后可以选择步行或者坐大巴车去南海观音，那还观音出来去紫竹林和不肯去观音寺。然后可以在停车场，坐车去法雨寺，法雨寺出来可以选择，爬山去，慧济寺。慧济寺可以坐索道下山到停车场然后坐车去，善财洞和梵音洞。然后选择做车回码头到客栈。因为客栈离码头很近，所以到什么地方坐车都很方便。以上仅供大家参考'
+          ]
+    lab=[
+        [('五个小孩早餐都送了', '儿童餐饮', '五个小孩早餐都送了', '其他', (43, 52), (43, 52))],
+        [],
+        [('儿童游乐区', '儿童娱乐区', '有', '其他', (25, 30), (14, 15))],
+        [('开黑', '笼统游戏体验', '真的很棒', '正', (24, 26), (26, 30))],
+        [],
+        
+        [('滑梯', '儿童玩具', '滑梯', '其他', (84, 86), (84, 86))],
+        
+    ]
+    s=time.time()
+    for i in sents:
+    # # print(test_loader.device)
+        pred = predict(i, tokenizer,model)
+        print('sents:',i)
+        print('pred:',pred)
+    e=time.time()
+    print(e-s)
+
