@@ -147,7 +147,7 @@ Introduction
 <div class=wrapper>
 <nav id=TableOfContents>
 <ul>
-<li><a href=#text-summary文档摘要>text summary（文档摘要）</a></li>
+<li><a href=#细粒度情感分析任务absa>细粒度情感分析任务（ABSA）</a></li>
 </ul>
 </nav>
 </div>
@@ -160,13 +160,10 @@ Introduction
 <h1>
 Introduction
 </h1>
-<h2 id=text-summary文档摘要>text summary（文档摘要）</h2>
-<p>随着互联网产生的文本数据越来越多，文本信息过载问题日益严重，对各类文本进行一个“降 维”处理显得非常必要，文本摘要便是其中一个重要的手段。
-文本摘要旨在将文本或文本集合转换为包含关键信息的简短摘要。
-文本摘要按照输入类型可分为单文档摘要和多文档摘要。单文档摘要从给定的一个文档中生成摘要，多文档摘要从给定的一组主题相关的文档中生成摘要。
-按照输出类型可分为抽取式摘要和生成式摘要。抽取式摘要从源文档中抽取关键句和关键词组成摘要，摘要全部来源于原文。生成式摘要根据原文，允许生成新的词语、短语来组成摘要。
-按照有无监督数据可以分为有监督摘要和无监督摘要。
-本文主要关注单文档、有监督、抽取式、生成式摘要。</p>
+<h2 id=细粒度情感分析任务absa>细粒度情感分析任务（ABSA）</h2>
+<p>对于一句餐馆评论：“Waiters are very friendly and the pasta is simply average.”，提到了两个评论目标：“waiter”和“pasta”；用来评价他们的词分别是：“friendly”和“average”；这句话评论的分别是餐馆的“service”和“food”方面。</p>
+<p><img src=../pics/absa.png alt></p>
+<p>从目标识别角度，针对 aspect term 和 opinion term，存在抽取问题；针对 aspect category，存在分类问题（假设预定义 aspect categories）。从情感分析角度，对 aspect term 和 aspect category 存在情感分类问题。这些原子任务如下图中间层所示。注意，一句评论里可能没有显示提及 aspect term，但同样可以存在 aspect category，比如“I was treated rudely.”讲的是“service”。</p>
 <footer class=footline>
 </footer>
 </div>

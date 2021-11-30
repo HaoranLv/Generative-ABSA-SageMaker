@@ -147,6 +147,17 @@ Introduction
 <nav id=TableOfContents>
 <ul>
 <li><a href=#使用场景>使用场景</a></li>
+<li><a href=#pipeline式absa>pipeline式ABSA</a></li>
+<li><a href=#端到端式absa>端到端式ABSA</a></li>
+<li><a href=#业内做法>业内做法</a>
+<ul>
+<li><a href=#ae>AE</a></li>
+<li><a href=#sc>SC</a></li>
+<li><a href=#oe>OE</a></li>
+<li><a href=#unified-framework>Unified framework</a></li>
+<li><a href=#general-framework>General framework</a></li>
+</ul>
+</li>
 </ul>
 </nav>
 </div>
@@ -160,17 +171,31 @@ Introduction
 1.1 算法概述
 </h1>
 <h2 id=使用场景>使用场景</h2>
-<p>根据生成方式可以分为生成式摘要和抽取式摘要。</p>
+<p>根据任务定义方式可以分为端到端式ABSA和pipeline式ABSA。</p>
 <ul>
-<li>抽取式摘要：找到一个文档中最重要的几个句子并对其进行拼接。</li>
-<li>生成式摘要：是一个序列生成问题，通过源文档序列, 生成序列摘要序列</li>
+<li>pipeline式ABSA：通过不同的模型组件分别完成AE,APC等任务后搭建成一个pipeline组合输出。</li>
+<li>端到端式ABSA：通过一个模型直接完成ABSA所定义的全部或者多个任务。</li>
 </ul>
-<p><img src=algo.png alt></p>
-<p>本workshop主要覆盖以下几个算法，对比结果如下</p>
-<ul>
-<li>Pegasus</li>
-<li>BART</li>
-</ul>
+<h2 id=pipeline式absa>pipeline式ABSA</h2>
+<p><img src=pipeline.png alt></p>
+<h2 id=端到端式absa>端到端式ABSA</h2>
+<p><img src=e2e.png alt></p>
+<h2 id=业内做法>业内做法</h2>
+<h3 id=ae>AE</h3>
+<p>Aspect term extraction with history attention and selective transformation(IJCAI 2019)
+Double embeddings and cnn-based sequence labeling for aspect extraction(ACL 2018)</p>
+<h3 id=sc>SC</h3>
+<p>Aspect level sentiment classification with deep memory net-work(EMNLP 2016)
+Relational Graph Attention Network for Aspect-based Sentiment Analysis(ACL 2020)</p>
+<h3 id=oe>OE</h3>
+<p>Coupled multi-layer attentions for co-extraction of aspect and opinion terms(AAAI 2017)</p>
+<h3 id=unified-framework>Unified framework</h3>
+<p>A unified model for opinion target extraction and target sentiment prediction(AAAI 2019)
+An interactive multi-task learning network for end-to-end aspect-based sentiment analysis (ACL 2019)
+DOER: dual cross-shared RNN for aspect term-polarity co-extraction (ACL 2019)</p>
+<h3 id=general-framework>General framework</h3>
+<p>Relation-Aware Collaborative Learning for Unified Aspect-Based Sentiment Analysis(ACL 2020)
+Towards Generative Aspect-Based Sentiment Analysis(ACL 2021)</p>
 <footer class=footline>
 </footer>
 </div>

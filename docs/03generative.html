@@ -147,10 +147,13 @@ active">
 <div class=wrapper>
 <nav id=TableOfContents>
 <ul>
+<li>
+<ul>
+<li><a href=#generation-absa>Generation-ABSA</a></li>
+</ul>
+</li>
 <li><a href=#模型架构>模型架构</a></li>
-<li><a href=#gsg预训目标>GSG预训目标</a></li>
 <li><a href=#模型表现>模型表现</a></li>
-<li><a href=#reference>reference</a></li>
 </ul>
 </nav>
 </div>
@@ -163,34 +166,14 @@ active">
 <h1>
 动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署
 </h1>
+<h3 id=generation-absa>Generation-ABSA</h3>
+<p>paper - Towards Generative Aspect-Based Sentiment Analysis (ACL 2021)</p>
 <h2 id=模型架构>模型架构</h2>
-<p>Pegasus是一个标准的Transformer架构，其全称是：利用提取的间隙句进行摘要概括的预训练模型（Pre-training with Extracted Gap-sentences for Abstractive Summarization）。就是设计一种间隙句生成的自监督预训练目标（GSG），来改进生成摘要的微调性能。</p>
-<p><img src=../pics/02pegasus/01.png alt></p>
-<h2 id=gsg预训目标>GSG预训目标</h2>
-<ul>
-<li>Mask掉整个句子</li>
-<li>将Mask的句子拼接成摘要</li>
-<li>使用上下文补全</li>
-</ul>
-<p>Mask策略</p>
-<p><img src=../pics/02pegasus/02.png alt></p>
+<p>将完整的ABSA任务重新定义为序列生成任务，并给出两种训练模式
+分解ABSA任务为Aspect Opinion Pair Extraction (AOPE)、UnifiedABSA (UABSA), spect Sentiment Triplet Extrac-tion (ASTE), Target Aspect Sentiment Detec-tion (TASD) 任务处理，所有子任务均用同样的训练模式训练</p>
+<p><img src=../pics/absa/G1.png alt></p>
 <h2 id=模型表现>模型表现</h2>
-<p>Pegasus-large在各个摘要数据集上的结果同之前的SOTA对比：在所有数据集上均得到了SOTA的性能表现。</p>
-<p><img src=../pics/02pegasus/03.png alt>
-<img src=../pics/02pegasus/04.png alt></p>
-<h2 id=reference>reference</h2>
-<ul>
-<li>paper： <a href=https://arxiv.org/abs/1912.08777>https://arxiv.org/abs/1912.08777</a></li>
-<li>source code：https://github.com/google-research/pegasus</li>
-</ul>
-<p>@misc{zhang2019pegasus,
-title={PEGASUS: Pre-training with Extracted Gap-sentences for Abstractive Summarization},
-author={Jingqing Zhang and Yao Zhao and Mohammad Saleh and Peter J. Liu},
-year={2020},
-eprint={1912.08777},
-archivePrefix={ICML},
-primaryClass={cs.CL}
-}</p>
+<p><img src=../pics/absa/G2.png alt></p>
 <footer class=footline>
 </footer>
 </div>

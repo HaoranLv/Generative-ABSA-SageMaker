@@ -147,8 +147,13 @@ active">
 <div class=wrapper>
 <nav id=TableOfContents>
 <ul>
-<li><a href=#数据准备>数据准备</a></li>
-<li><a href=#模型训练>模型训练</a></li>
+<li>
+<ul>
+<li><a href=#这里我们使用两种模型作为演示用>这里我们使用两种模型作为演示用:</a></li>
+</ul>
+</li>
+<li><a href=#lcf-atepc>LCF-ATEPC</a></li>
+<li><a href=#cas-bert>CAS-Bert</a></li>
 </ul>
 </nav>
 </div>
@@ -161,37 +166,37 @@ active">
 <h1>
 动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型
 </h1>
-<p>paper - A Multi-task Learning Model for Chinese-oriented Aspect Polarity Classification and Aspect Term Extraction。</p>
+<h3 id=这里我们使用两种模型作为演示用>这里我们使用两种模型作为演示用:</h3>
+<ul>
+<li>
+<p>LCF-ATEPC
+paper - A Multi-task Learning Model for Chinese-oriented Aspect Polarity Classification and Aspect Term Extraction。</p>
+</li>
+<li>
+<p>CAS-Bert
+paper - Utilizing BERT for Aspect-Based Sentiment Analysis via Constructing Auxiliary Sentence" (NAACL 2019)。 这个方法的输入输出设计很符合TABSA任务，做法简单，适合作为此类任务的baseline.</p>
+</li>
+</ul>
 <p>SOTA for ate task： <a href="https://paperswithcode.com/sota/aspect-based-sentiment-analysis-on-semeval?p=a-multi-task-learning-model-for-chinese">https://paperswithcode.com/sota/aspect-based-sentiment-analysis-on-semeval?p=a-multi-task-learning-model-for-chinese</a>
 我们现在会用sagemaker进行一个模型的本地训练，使用ml.p3.8xlarge机型。</p>
-<h2 id=数据准备>数据准备</h2>
-<p>首先下载代码</p>
-<pre tabindex=0><code>source activate pytorch_p37
-cd SageMaker
-git clone https://github.com/jackie930/PyABSA.git
-</code></pre><p>将数据<code>data1119.csv</code>上传到<code>PyABSA/data/data1109.csv</code></p>
-<h2 id=模型训练>模型训练</h2>
-<p>数据准备</p>
-<pre tabindex=0><code>cd PyABSA
-pip install termcolor update_checker findfile jupyterlab-git torch==1.10.0 transformers==4.12.3 autocuda spacy googledrivedownloader seqeval emoji
-python pyabsa/utils/preprocess.py --inpath './data/data1109.csv' --folder_name 'custom_atepc_1109' --task 'aptepc'
-</code></pre><p>然后进行模型训练，演示目的，只训练一个epoch</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#f92672>from</span> pyabsa.functional <span style=color:#f92672>import</span> ATEPCModelList
-<span style=color:#f92672>from</span> pyabsa.functional <span style=color:#f92672>import</span> Trainer, ATEPCTrainer
-<span style=color:#f92672>from</span> pyabsa.functional <span style=color:#f92672>import</span> ATEPCConfigManager
-
-atepc_config_custom <span style=color:#f92672>=</span> ATEPCConfigManager<span style=color:#f92672>.</span>get_atepc_config_chinese()
-atepc_config_custom<span style=color:#f92672>.</span>num_epoch <span style=color:#f92672>=</span> <span style=color:#ae81ff>2</span>
-atepc_config_custom<span style=color:#f92672>.</span>evaluate_begin <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>
-atepc_config_custom<span style=color:#f92672>.</span>log_step <span style=color:#f92672>=</span> <span style=color:#ae81ff>100</span>
-atepc_config_custom<span style=color:#f92672>.</span>model <span style=color:#f92672>=</span> ATEPCModelList<span style=color:#f92672>.</span>LCF_ATEPC
-
-aspect_extractor <span style=color:#f92672>=</span> ATEPCTrainer(config<span style=color:#f92672>=</span>atepc_config_custom, 
-                                dataset<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;./custom_atepc_1109&#39;</span>
-                                )
-</code></pre></div><p>训练完成后，模型评估</p>
-<pre tabindex=0><code>python utils/metrics_cacl.py --data_path --checkppoint
-</code></pre>
+<h2 id=lcf-atepc>LCF-ATEPC</h2>
+<p><img src=../pics/absa/LCF.png alt></p>
+<ul>
+<li>核心贡献：</li>
+</ul>
+<p>提出局部上下文聚焦（CDM/CDW）机制，使得self-attention得到的特征聚焦于aspect附近</p>
+<h2 id=cas-bert>CAS-Bert</h2>
+<p><img src=../pics/absa/CAS.png alt></p>
+<p>核心思想为将实际标签中的(aspect term, aspect category, sentiment)三元组生成辅助句，然后做输入评论和辅助句的matching，相当于句子级别的分类任务。</p>
+<p>以QA-B模式为例：
+实际label为(aspect term, aspect category, sentiment)
+则对safety这个category生成三句话：</p>
+<ol>
+<li>the sentiment of the aspect safety of aspect term is positive</li>
+<li>the sentiment of the aspect safety of aspect term is none</li>
+<li>the sentiment of the aspect safety of aspect term is negative</li>
+</ol>
+<p>然后做实际评论和生成辅助句的分类任务</p>
 <footer class=footline>
 </footer>
 </div>

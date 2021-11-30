@@ -158,11 +158,12 @@ active">
 生成式ABSA模型部署
 </h1>
 <p>首先打包镜像并推送</p>
-<pre tabindex=0><code>sh endpoint/build_and_push.sh generative-absa
+<pre tabindex=0><code>cd endpoint
+sh build_and_push.sh generative-absa
 </code></pre><p>然后部署一个预置的endpoint</p>
 <div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=color:#75715e>#注意修改：847380964353.dkr.ecr.ap-northeast-1.amazonaws.com/generative-absa为自己对应的</span>
 
-!python endpoint/create_endpoint.py <span style=color:#ae81ff>\
+!python create_endpoint.py <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>--endpoint_ecr_image_path <span style=color:#e6db74>&#34;847380964353.dkr.ecr.ap-northeast-1.amazonaws.com/generative-absa&#34;</span> <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>--endpoint_name <span style=color:#e6db74>&#39;generative-absa&#39;</span> <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>--instance_type <span style=color:#e6db74>&#34;ml.p3.2xlarge&#34;</span>
