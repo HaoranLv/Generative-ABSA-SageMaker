@@ -9,7 +9,8 @@ draft: false
 首先打包镜像并推送
 
 ```
-sh endpoint/build_and_push.sh generative-absa
+cd endpoint
+sh build_and_push.sh generative-absa
 ```
 然后部署一个预置的endpoint
 
@@ -17,7 +18,7 @@ sh endpoint/build_and_push.sh generative-absa
 ```shell script
 #注意修改：847380964353.dkr.ecr.ap-northeast-1.amazonaws.com/generative-absa为自己对应的
 
-!python endpoint/create_endpoint.py \
+!python create_endpoint.py \
 --endpoint_ecr_image_path "847380964353.dkr.ecr.ap-northeast-1.amazonaws.com/generative-absa" \
 --endpoint_name 'generative-absa' \
 --instance_type "ml.p3.2xlarge"

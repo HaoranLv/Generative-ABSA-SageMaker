@@ -25,8 +25,8 @@ def init_args():
     # basic settings
     parser.add_argument("--task", default='tasd-cn', type=str, required=True,
                         help="The name of the task, selected from: [uabsa, aste, tasd, aope]")
-    parser.add_argument("--ckpoint_path", default='./outputs/tasd-cn/ctrip/extraction/cktepoch=1.ckpt', type=str, required=True)
-    parser.add_argument("--text", default='早餐一般般，勉勉强强填饱肚子，样式可选性不多，可能是疫情的影响吧。不过酒店的服务不错，五个小孩早餐都送了，点👍。由于酒店历史有点长，所以设施感觉一般般，整体还可以，三钻吧', type=str, required=True)
+    parser.add_argument("--ckpoint_path", default='./outputs/tasd-cn/ctrip/extraction/cktepoch=1.ckpt', type=str, required=False)
+    parser.add_argument("--text", default='早餐一般般，勉勉强强填饱肚子，样式可选性不多，可能是疫情的影响吧。不过酒店的服务不错，五个小孩早餐都送了，点👍。由于酒店历史有点长，所以设施感觉一般般，整体还可以，三钻吧', type=str, required=False)
     parser.add_argument("--dataset", default='ctrip', type=str, required=True,
                         help="The name of the dataset, selected from: [laptop14, rest14, rest15, rest16]")
     parser.add_argument("--model_name_or_path", default='lemon234071/t5-base-Chinese', type=str,
@@ -424,8 +424,7 @@ if __name__ == "__main__":
     if args.do_direct_eval:
         print("\n****** Conduct Evaluating with the last state ******")
         device=torch.device(f'cuda:{args.n_gpu}')
-#         checkpoint = './outputs/tasd-cn/ctrip/annotation/cktepoch=15.ckpt'
-        checkpoint = './outputs/tasd-cn/ctrip/extraction/cktepoch=15_v1.ckpt'
+        checkpoint=args.ckpoint_path
         print(f"\nLoad the trained model from {checkpoint}...")
         model_ckpt = torch.load(checkpoint,map_location=device)
         model = T5FineTuner(model_ckpt['hyper_parameters'])
@@ -443,20 +442,19 @@ if __name__ == "__main__":
         raw_scores, fixed_scores = evaluate(test_loader, model, args.paradigm, args.task, sents, hasidx=False)
         # print(scores)
 
-        # write to file
-        log_file_path = f"results_log/{args.task}-{args.dataset}.txt"
-        local_time = time.asctime(time.localtime(time.time()))
-        exp_settings = f"{args.task} on {args.dataset} under {args.paradigm}; Train bs={args.train_batch_size}, num_epochs = {args.num_train_epochs}"
-        exp_results = f"Raw F1 = {raw_scores['f1']:.4f}, Fixed F1 = {fixed_scores['f1']:.4f}"
-        log_str = f'============================================================\n'
-        log_str += f"{local_time}\n{exp_settings}\n{exp_results}\n\n"
-        with open(log_file_path, "a+") as f:
-            f.write(log_str)
+#         # write to file
+#         log_file_path = f"results_log/{args.task}-{args.dataset}.txt"
+#         local_time = time.asctime(time.localtime(time.time()))
+#         exp_settings = f"{args.task} on {args.dataset} under {args.paradigm}; Train bs={args.train_batch_size}, num_epochs = {args.num_train_epochs}"
+#         exp_results = f"Raw F1 = {raw_scores['f1']:.4f}"
+#         log_str = f'============================================================\n'
+#         log_str += f"{local_time}\n{exp_settings}\n{exp_results}\n\n"
+#         with open(log_file_path, "a+") as f:
+#             f.write(log_str)
 # prediction process
 if args.do_direct_predict:
     print("\n****** Conduct predicting with the last state ******")
     checkpoint=args.ckpoint_path
-#     checkpoint='./outputs/tasd-cn/ctrip/annotation/cktepoch=7.ckpt'
     print(f"\nLoad the trained model from {checkpoint}...")
     device=torch.device(f'cuda:{args.n_gpu}')
     model_ckpt = torch.load(checkpoint,map_location=device)

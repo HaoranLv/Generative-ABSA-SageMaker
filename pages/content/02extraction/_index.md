@@ -6,51 +6,39 @@ weight: 0260
 draft: false
 ---
 
+### 这里我们使用两种模型作为演示用:
+
+* LCF-ATEPC
 paper - A Multi-task Learning Model for Chinese-oriented Aspect Polarity Classification and Aspect Term Extraction。 
+
+* CAS-Bert
+paper - Utilizing BERT for Aspect-Based Sentiment Analysis via Constructing Auxiliary Sentence" (NAACL 2019)。 这个方法的输入输出设计很符合TABSA任务，做法简单，适合作为此类任务的baseline.
 
 SOTA for ate task： https://paperswithcode.com/sota/aspect-based-sentiment-analysis-on-semeval?p=a-multi-task-learning-model-for-chinese 
 我们现在会用sagemaker进行一个模型的本地训练，使用ml.p3.8xlarge机型。
 
-## 数据准备 
+## LCF-ATEPC
 
-首先下载代码
-```
-source activate pytorch_p37
-cd SageMaker
-git clone https://github.com/jackie930/PyABSA.git
-```
+![](../pics/absa/LCF.png)
 
-将数据`data1119.csv`上传到`PyABSA/data/data1109.csv`
+* 核心贡献：
 
-## 模型训练
+提出局部上下文聚焦（CDM/CDW）机制，使得self-attention得到的特征聚焦于aspect附近
 
-数据准备
-```
-cd PyABSA
-pip install termcolor update_checker findfile jupyterlab-git torch==1.10.0 transformers==4.12.3 autocuda spacy googledrivedownloader seqeval emoji
-python pyabsa/utils/preprocess.py --inpath './data/data1109.csv' --folder_name 'custom_atepc_1109' --task 'aptepc'
-```
 
-然后进行模型训练，演示目的，只训练一个epoch
+## CAS-Bert
 
-```python
-from pyabsa.functional import ATEPCModelList
-from pyabsa.functional import Trainer, ATEPCTrainer
-from pyabsa.functional import ATEPCConfigManager
+![](../pics/absa/CAS.png)
 
-atepc_config_custom = ATEPCConfigManager.get_atepc_config_chinese()
-atepc_config_custom.num_epoch = 2
-atepc_config_custom.evaluate_begin = 1
-atepc_config_custom.log_step = 100
-atepc_config_custom.model = ATEPCModelList.LCF_ATEPC
+核心思想为将实际标签中的(aspect term, aspect category, sentiment)三元组生成辅助句，然后做输入评论和辅助句的matching，相当于句子级别的分类任务。
 
-aspect_extractor = ATEPCTrainer(config=atepc_config_custom, 
-                                dataset='./custom_atepc_1109'
-                                )
-```
+以QA-B模式为例：
+实际label为(aspect term, aspect category, sentiment)
+则对safety这个category生成三句话：
+1. the sentiment of the aspect safety of aspect term is positive
+2. the sentiment of the aspect safety of aspect term is none
+3. the sentiment of the aspect safety of aspect term is negative
 
-训练完成后，模型评估
-```
-python utils/metrics_cacl.py --data_path --checkppoint
-```
+然后做实际评论和生成辅助句的分类任务
+
 

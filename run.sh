@@ -24,17 +24,17 @@
 #             --learning_rate 3e-4 \
 #             --num_train_epochs 15  > logs/noemj_bart_3e-4.log
 
-python -u cpt.py --task tasd-cn \
-            --dataset ctrip \
-            --paradigm extraction \
-            --n_gpu '0' \
-            --do_train \
-            --do_eval \
-            --train_batch_size 2 \
-            --gradient_accumulation_steps 2 \
-            --eval_batch_size 2 \
-            --learning_rate 3e-4 \
-            --num_train_epochs 15  > logs/noemj_cpt_3e-4.log
+# python -u cpt.py --task tasd-cn \
+#             --dataset ctrip \
+#             --paradigm extraction \
+#             --n_gpu '0' \
+#             --do_train \
+#             --do_eval \
+#             --train_batch_size 2 \
+#             --gradient_accumulation_steps 2 \
+#             --eval_batch_size 2 \
+#             --learning_rate 3e-4 \
+#             --num_train_epochs 15  > logs/noemj_cpt_3e-4.log
 
 # python -u main.py --task tasd-cn \
 #             --dataset ctrip \
@@ -59,3 +59,15 @@ python -u cpt.py --task tasd-cn \
 #             --eval_batch_size 2 \
 #             --learning_rate 5e-5 \
 #             --num_train_epochs 15 #> logs/annotation_noemj1119.log
+
+python -u main.py --task tasd-cn \
+            --dataset ctrip \
+            --paradigm extraction \
+            --n_gpu '0' \
+            --model_name_or_path lemon234071/t5-base-Chinese \
+            --do_train \
+            --train_batch_size 2 \
+            --gradient_accumulation_steps 2 \
+            --eval_batch_size 2 \
+            --learning_rate 3e-4 \
+            --num_train_epochs 1  > logs/noemj_lr3e-4.log

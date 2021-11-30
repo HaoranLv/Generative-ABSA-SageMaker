@@ -47,7 +47,7 @@ python -u main.py --task tasd-cn \
             --gradient_accumulation_steps 2 \
             --eval_batch_size 2 \
             --learning_rate 3e-4 \
-            --num_train_epochs 25  > logs/noemj_lr3e-4.log
+            --num_train_epochs 1  > logs/noemj_lr3e-4.log
 ```
 
 训练完成后，会提示日志信息如下
@@ -87,10 +87,12 @@ python main.py --task tasd-cn \
 输出如下
 
 ```
-原文: Germany on Wednesday accused Vietnam of kidnapping a former Vietnamese oil executive Trinh Xuan Thanh, who allegedly sought asylum in Berlin, and taking him home to face accusations of corruption. Germany expelled a Vietnamese intelligence officer over the suspected kidnapping and demanded that Vietnam allow Thanh to return to Germany. However, Vietnam said Thanh had returned home by himself.
-真实标签: Germany accuses Vietnam of kidnapping asylum seeker 
-模型预测: Germany accuses Vietnam of kidnapping ex-oil exec, taking him home
+sents: 早餐一般般，勉勉强强填饱肚子，样式可选性不多，可能是疫情的影响吧。不过酒店的服务不错，五个小孩早餐都送了，点👍。由于酒店历史有点长，所以设施感觉一般般，整体还可以，三钻吧
+pred: 
+0.5794262886047363
 
 ```
+由于样本数据中空输出较多，且仅训练了一个epoch故模型倾向于输出空
+
 
 到这里，就完成了一个模型的训练过程。
