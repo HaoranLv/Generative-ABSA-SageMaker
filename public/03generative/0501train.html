@@ -6,7 +6,7 @@
 <meta name=description content="My AWS Workshop">
 <meta name=author content="Jane Architect">
 <link rel=icon href=../images/favicon.png type=image/png>
-<title>Pegasus模型部署 :: SpotBot Workshop</title>
+<title>生成式的ABSA模型训练 :: SpotBot Workshop</title>
 <link href=../css/nucleus.css rel=stylesheet>
 <link href=../css/fontawesome-all.min.css rel=stylesheet>
 <link href=../css/hybrid.css rel=stylesheet>
@@ -21,7 +21,7 @@
 <script src=../js/jquery-3.3.1.min.js></script>
 <style>:root #header+#content>#left>#rlblock_left{display:none!important}:not(pre)>code+span.copy-to-clipboard{display:none}</style>
 </head>
-<body data-url=../02pegasus/0503deploy.html>
+<body data-url=../03generative/0501train.html>
 <nav id=sidebar class=showVisitedLinks>
 <div id=header-wrapper>
 <div id=header>
@@ -73,30 +73,44 @@ Introduction
 </li>
 </ul>
 </li>
-<li data-nav-id=/02pegasus.html title="动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验" class="dd-item
-parent">
-<a href=../02pegasus.html>
-动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验
+<li data-nav-id=/02extraction.html title="动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型" class=dd-item>
+<a href=../02extraction.html>
+动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型
 <i class="fas fa-check read-icon"></i>
 </a>
 <ul>
-<li data-nav-id=/02pegasus/0501train.html title=Pegasus模型训练 class=dd-item>
-<a href=../02pegasus/0501train.html>
-Pegasus模型训练
+<li data-nav-id=/02extraction/02train/_index-1.html title=抽取式ABSA模型训练 class=dd-item>
+<a href=../02extraction/02train/_index-1.html>
+抽取式ABSA模型训练
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/02pegasus/0502train.html title=Pegasus模型增强训练 class=dd-item>
-<a href=../02pegasus/0502train.html>
-Pegasus模型增强训练
+<li data-nav-id=/02extraction/01train.html title=抽取式ABSA模型训练 class=dd-item>
+<a href=../02extraction/01train.html>
+抽取式ABSA模型训练
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/02pegasus/0503deploy.html title=Pegasus模型部署 class="dd-item
+</ul>
+</li>
+<li data-nav-id=/03generative.html title="动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署" class="dd-item
+parent">
+<a href=../03generative.html>
+动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署
+<i class="fas fa-check read-icon"></i>
+</a>
+<ul>
+<li data-nav-id=/03generative/0501train.html title=生成式的ABSA模型训练 class="dd-item
 parent
 active">
-<a href=../02pegasus/0503deploy.html>
-Pegasus模型部署
+<a href=../03generative/0501train.html>
+生成式的ABSA模型训练
+<i class="fas fa-check read-icon"></i>
+</a>
+</li>
+<li data-nav-id=/03generative/0503deploy.html title=生成式ABSA模型部署 class=dd-item>
+<a href=../03generative/0503deploy.html>
+生成式ABSA模型部署
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
@@ -127,12 +141,19 @@ Pegasus模型部署
 </span>
 <span id=toc-menu><i class="fas fa-list-alt"></i></span>
 <span class=links>
-<a href=../>AWS Datalab-文档摘要</a> > <a href=../02pegasus.html>动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验</a> > Pegasus模型部署
+<a href=../>AWS Datalab-细粒度情感分析</a> > <a href=../03generative.html>动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署</a> > 生成式的ABSA模型训练
 </span>
 </div>
 <div class=progress>
 <div class=wrapper>
-<nav id=TableOfContents></nav>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#数据准备>数据准备</a></li>
+<li><a href=#模型训练>模型训练</a></li>
+<li><a href=#结果本地验证>结果本地验证</a></li>
+<li><a href=#结果本地测试>结果本地测试</a></li>
+</ul>
+</nav>
 </div>
 </div>
 </div>
@@ -141,58 +162,68 @@ Pegasus模型部署
 </div>
 <div id=body-inner>
 <h1>
-Pegasus模型部署
+生成式的ABSA模型训练
 </h1>
-<p>首先打包镜像并推送</p>
-<pre tabindex=0><code>!sh build_and push.sh pegasus-hp
-</code></pre><p>然后部署一个预置的endpoint</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=color:#75715e>#注意修改：847380964353.dkr.ecr.ap-northeast-1.amazonaws.com/pegasus-hp为自己对应的</span>
-%cd endpoint
+<p>我们现在会用sagemaker进行一个生成式的ABSA模型的本地训练，使用ML.P3.2xlarge机型。</p>
+<h2 id=数据准备>数据准备</h2>
+<p>首先下载代码</p>
+<pre tabindex=0><code>cd SageMaker
+git clone https://github.com/HaoranLv/Generative-ABSA-SageMaker.git
+</code></pre><p>安装环境</p>
+<pre tabindex=0><code>source activate pytorch_p37
+pip install -r requirements.txt
+</code></pre><p>然后处理数据<code>data_prepare.ipynb</code>，进行数据清洗并切分train/test。
+注意这里，为了快速产生结果，我们只要用800条数据训练，200条测试/验证</p>
+<pre tabindex=0><code>df=pd.read_csv('data/ctrip/data1119_part.csv')
+write_txt(df,path='data/ctrip/total.txt')
+write_train_test(train_path='data/ctrip/train.txt',test_path='data/ctrip/test.txt',root='data/ctrip/total1119.txt')
+</code></pre><h2 id=模型训练>模型训练</h2>
+<p>接下来我们运行训练,这里我们使用huggingface上的公开的<code>lemon234071/t5-base-Chinese</code>作为训练起点，为了演示目的，我们只运行一个epoch，大约需要5min</p>
+<pre tabindex=0><code>python -u main.py --task tasd-cn \
+            --dataset ctrip \
+            --paradigm extraction \
+            --n_gpu '0' \
+            --model_name_or_path lemon234071/t5-base-Chinese \
+            --do_train \
+            --train_batch_size 2 \
+            --gradient_accumulation_steps 2 \
+            --eval_batch_size 2 \
+            --learning_rate 3e-4 \
+            --num_train_epochs 25  &gt; logs/noemj_lr3e-4.log
+</code></pre><p>训练完成后，会提示日志信息如下</p>
+<pre tabindex=0><code>Finish training and saving the model!
+</code></pre><p>模型结果文件及相应的日志等信息会自动保存在<code>./outputs/tasd-cn/ctrip/extraction/</code></p>
+<h2 id=结果本地验证>结果本地验证</h2>
+<p>我们可以直接用这个产生的模型文件进行本地推理。注意这里的模型文件地址的指定为你刚刚训练产生的。</p>
+<pre tabindex=0><code>python main.py --task tasd-cn \
+            --dataset ctrip \
+            --ckpoint_path outputs/tasd-cn/ctrip/extraction/cktepoch=1.ckpt \
+            --paradigm extraction \
+            --n_gpu '0' \
+            --do_direct_eval \
+            --eval_batch_size 128 \
+</code></pre><h2 id=结果本地测试>结果本地测试</h2>
+<p>我们可以直接用这个产生的模型文件进行本地推理。注意这里的模型文件地址的指定为你刚刚训练产生的。</p>
+<pre tabindex=0><code>python main.py --task tasd-cn \
+            --dataset ctrip \
+            --ckpoint_path outputs/tasd-cn/ctrip/extraction/cktepoch=1.ckpt \
+            --text 早餐一般般，勉勉强强填饱肚子，样式可选性不多，可能是疫情的影响吧。不过酒店的服务不错，五个小孩早餐都送了，点👍。由于酒店历史有点长，所以设施感觉一般般，整体还可以，三钻吧 \
+            --paradigm extraction \
+            --n_gpu 0 \
+            --do_direct_predict \
+</code></pre><p>输出如下</p>
+<pre tabindex=0><code>原文: Germany on Wednesday accused Vietnam of kidnapping a former Vietnamese oil executive Trinh Xuan Thanh, who allegedly sought asylum in Berlin, and taking him home to face accusations of corruption. Germany expelled a Vietnamese intelligence officer over the suspected kidnapping and demanded that Vietnam allow Thanh to return to Germany. However, Vietnam said Thanh had returned home by himself.
+真实标签: Germany accuses Vietnam of kidnapping asylum seeker 
+模型预测: Germany accuses Vietnam of kidnapping ex-oil exec, taking him home
 
-!python create_endpoint.py <span style=color:#ae81ff>\
-</span><span style=color:#ae81ff></span>--endpoint_ecr_image_path <span style=color:#e6db74>&#34;847380964353.dkr.ecr.ap-northeast-1.amazonaws.com/pegasus-hp&#34;</span> <span style=color:#ae81ff>\
-</span><span style=color:#ae81ff></span>--endpoint_name <span style=color:#e6db74>&#39;pegasus&#39;</span> <span style=color:#ae81ff>\
-</span><span style=color:#ae81ff></span>--instance_type <span style=color:#e6db74>&#34;ml.p3.2xlarge&#34;</span>
-%cd ..
-</code></pre></div><p>输出</p>
-<pre tabindex=0><code>model_name:  pegasus
-endpoint_ecr_image_path:  847380964353.dkr.ecr.ap-northeast-1.amazonaws.com/pegasus-hp
-&lt;&lt;&lt; Completed model endpoint deployment. pegasus
-</code></pre><p><img src=../pics/02pegasus/14.png alt></p>
-<p>当状态变为<code>InService</code>即代表部署完成</p>
-<p>在部署结束后，看到SageMaker控制台生成了对应的endpoint,可以使用如下客户端代码测试调用</p>
-<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#f92672>%%</span>time 
-
-<span style=color:#f92672>from</span> boto3.session <span style=color:#f92672>import</span> Session
-<span style=color:#f92672>import</span> json
-df<span style=color:#f92672>=</span>pd<span style=color:#f92672>.</span>read_csv(<span style=color:#e6db74>&#39;./data/hp/summary/news_summary_cleaned_small_test.csv&#39;</span>)
-print(<span style=color:#e6db74>&#39;原文:&#39;</span>,df<span style=color:#f92672>.</span>loc[<span style=color:#ae81ff>0</span>,<span style=color:#e6db74>&#39;text&#39;</span>])
-print(<span style=color:#e6db74>&#39;真实标签:&#39;</span>,df<span style=color:#f92672>.</span>loc[<span style=color:#ae81ff>0</span>,<span style=color:#e6db74>&#39;headlines&#39;</span>])
-data<span style=color:#f92672>=</span>{<span style=color:#e6db74>&#34;data&#34;</span>: df<span style=color:#f92672>.</span>loc[<span style=color:#ae81ff>0</span>,<span style=color:#e6db74>&#39;text&#39;</span>]}
-session <span style=color:#f92672>=</span> Session()
-    
-runtime <span style=color:#f92672>=</span> session<span style=color:#f92672>.</span>client(<span style=color:#e6db74>&#34;runtime.sagemaker&#34;</span>)
-response <span style=color:#f92672>=</span> runtime<span style=color:#f92672>.</span>invoke_endpoint(
-    EndpointName<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;pegasus&#39;</span>,
-    ContentType<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;application/json&#34;</span>,
-    Body<span style=color:#f92672>=</span>json<span style=color:#f92672>.</span>dumps(data),
-)
-
-result <span style=color:#f92672>=</span> json<span style=color:#f92672>.</span>loads(response[<span style=color:#e6db74>&#34;Body&#34;</span>]<span style=color:#f92672>.</span>read())
-print (result)
-</code></pre></div><p>结果如下</p>
-<pre tabindex=0><code>{'result': '[SEP] [CLS] Germany accuses Vietnam of kidnapping asylum seeker  [SEP]', 'infer_time': '0:00:02.948025'}
-CPU times: user 169 ms, sys: 30.9 ms, total: 200 ms
-Wall time: 3.42 s
-
-</code></pre>
+</code></pre><p>到这里，就完成了一个模型的训练过程。</p>
 <footer class=footline>
 </footer>
 </div>
 </div>
 <div id=navigation>
-<a class="nav nav-prev" href=../02pegasus/0502train.html title=Pegasus模型增强训练> <i class="fa fa-chevron-left"></i></a>
-<a class="nav nav-next" href=../01introduction.html title=Introduction style=margin-right:0><i class="fa fa-chevron-right"></i></a>
+<a class="nav nav-prev" href=../03generative.html title="动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署"> <i class="fa fa-chevron-left"></i></a>
+<a class="nav nav-next" href=../03generative/0503deploy.html title=生成式ABSA模型部署 style=margin-right:0><i class="fa fa-chevron-right"></i></a>
 </div>
 </section>
 <div style=left:-1000px;overflow:scroll;position:absolute;top:-1000px;border:none;box-sizing:content-box;height:200px;margin:0;padding:0;width:200px>

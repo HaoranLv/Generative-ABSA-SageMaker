@@ -6,7 +6,7 @@
 <meta name=description content="My AWS Workshop">
 <meta name=author content="Jane Architect">
 <link rel=icon href=../images/favicon.png type=image/png>
-<title>Pegasus模型训练 :: SpotBot Workshop</title>
+<title>1.2 数据集 :: SpotBot Workshop</title>
 <link href=../css/nucleus.css rel=stylesheet>
 <link href=../css/fontawesome-all.min.css rel=stylesheet>
 <link href=../css/hybrid.css rel=stylesheet>
@@ -21,7 +21,7 @@
 <script src=../js/jquery-3.3.1.min.js></script>
 <style>:root #header+#content>#left>#rlblock_left{display:none!important}:not(pre)>code+span.copy-to-clipboard{display:none}</style>
 </head>
-<body data-url=../02pegasus/0501train.html>
+<body data-url=../01introduction/200data.html>
 <nav id=sidebar class=showVisitedLinks>
 <div id=header-wrapper>
 <div id=header>
@@ -47,7 +47,8 @@
 </section>
 <div class=highlightable>
 <ul class=topics>
-<li data-nav-id=/01introduction.html title=Introduction class=dd-item>
+<li data-nav-id=/01introduction.html title=Introduction class="dd-item
+parent">
 <a href=../01introduction.html>
 Introduction
 <i class="fas fa-check read-icon"></i>
@@ -59,7 +60,7 @@ Introduction
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/01introduction/200data.html title="1.2 数据集" class=dd-item>
+<li data-nav-id=/01introduction/200data.html title="1.2 数据集" class="dd-item active">
 <a href=../01introduction/200data.html>
 1.2 数据集
 <i class="fas fa-check read-icon"></i>
@@ -73,30 +74,41 @@ Introduction
 </li>
 </ul>
 </li>
-<li data-nav-id=/02pegasus.html title="动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验" class="dd-item
-parent">
-<a href=../02pegasus.html>
-动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验
+<li data-nav-id=/02extraction.html title="动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型" class=dd-item>
+<a href=../02extraction.html>
+动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型
 <i class="fas fa-check read-icon"></i>
 </a>
 <ul>
-<li data-nav-id=/02pegasus/0501train.html title=Pegasus模型训练 class="dd-item
-parent
-active">
-<a href=../02pegasus/0501train.html>
-Pegasus模型训练
+<li data-nav-id=/02extraction/02train/_index-1.html title=抽取式ABSA模型训练 class=dd-item>
+<a href=../02extraction/02train/_index-1.html>
+抽取式ABSA模型训练
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/02pegasus/0502train.html title=Pegasus模型增强训练 class=dd-item>
-<a href=../02pegasus/0502train.html>
-Pegasus模型增强训练
+<li data-nav-id=/02extraction/01train.html title=抽取式ABSA模型训练 class=dd-item>
+<a href=../02extraction/01train.html>
+抽取式ABSA模型训练
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/02pegasus/0503deploy.html title=Pegasus模型部署 class=dd-item>
-<a href=../02pegasus/0503deploy.html>
-Pegasus模型部署
+</ul>
+</li>
+<li data-nav-id=/03generative.html title="动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署" class=dd-item>
+<a href=../03generative.html>
+动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署
+<i class="fas fa-check read-icon"></i>
+</a>
+<ul>
+<li data-nav-id=/03generative/0501train.html title=生成式的ABSA模型训练 class=dd-item>
+<a href=../03generative/0501train.html>
+生成式的ABSA模型训练
+<i class="fas fa-check read-icon"></i>
+</a>
+</li>
+<li data-nav-id=/03generative/0503deploy.html title=生成式ABSA模型部署 class=dd-item>
+<a href=../03generative/0503deploy.html>
+生成式ABSA模型部署
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
@@ -127,16 +139,19 @@ Pegasus模型部署
 </span>
 <span id=toc-menu><i class="fas fa-list-alt"></i></span>
 <span class=links>
-<a href=../>AWS Datalab-文档摘要</a> > <a href=../02pegasus.html>动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验</a> > Pegasus模型训练
+<a href=../>AWS Datalab-细粒度情感分析</a> > <a href=../01introduction.html>Introduction</a> > 1.2 数据集
 </span>
 </div>
 <div class=progress>
 <div class=wrapper>
 <nav id=TableOfContents>
 <ul>
-<li><a href=#数据准备>数据准备</a></li>
-<li><a href=#模型训练>模型训练</a></li>
-<li><a href=#结果本地测试>结果本地测试</a></li>
+<li>
+<ul>
+<li><a href=#1公开数据集-英文>1.公开数据集 (英文)</a></li>
+<li><a href=#2公开数据集-中文>2.公开数据集 (中文)</a></li>
+</ul>
+</li>
 </ul>
 </nav>
 </div>
@@ -147,87 +162,40 @@ Pegasus模型部署
 </div>
 <div id=body-inner>
 <h1>
-Pegasus模型训练
+1.2 数据集
 </h1>
-<p>我们现在会用sagemaker进行一个pegasus模型的本地训练，使用ML.P3.2xlarge机型。</p>
-<h2 id=数据准备>数据准备</h2>
-<p>首先下载代码</p>
-<pre tabindex=0><code>cd SageMaker
-git clone https://github.com/HaoranLv/nlp_transformer.git
-</code></pre><p>然后打开文件 <code>hp_main.ipynb</code>，逐行运行。</p>
-<p>首先安装环境</p>
-<p><img src=../pics/02pegasus/05.png alt></p>
-<p>然后处理数据<code>hp_data.ipynb</code>，切分train/test。
-注意这里，为了快速产生结果，我们只要用1000条数据训练，100条测试/验证</p>
-<pre tabindex=0><code>train_df.to_csv('./data/hp/summary/news_summary_cleaned_train.csv',index=False)
-test_df.to_csv('./data/hp/summary/news_summary_cleaned_test.csv',index=False)
-train_df[:1000].to_csv('./data/hp/summary/news_summary_cleaned_small_train.csv',index=False)
-test_df[:100].to_csv('./data/hp/summary/news_summary_cleaned_small_test.csv',index=False)
-</code></pre><p><img src=../pics/02pegasus/06.png alt></p>
-<h2 id=模型训练>模型训练</h2>
-<p>接下来我们运行训练，首先下载我们已经训练好的模型</p>
-<pre tabindex=0><code>!mkdir -p models/pretrain/pegasus
-!mkdir -p models/pretrain/bart
-
-!mkdir -p ./models/local_train/pegasus-hp
-!mkdir -p ./models/local_train/bart-hp
-
-!aws s3 cp s3://datalab2021/hupo_nlp/models/pegasus/checkpoint-46314.zip models/pretrain/pegasus
-!aws s3 cp s3://datalab2021/hupo_nlp/models/bart/checkpoint-46314.zip models/pretrain/bart
-    
-!unzip models/pretrain/pegasus/checkpoint-46314.zip -d models/pretrain/pegasus &gt; /dev/null 2&gt;&amp;1
-!unzip models/pretrain/bart/checkpoint-46314.zip -d models/pretrain/bart &gt; /dev/null 2&gt;&amp;1
-</code></pre><p>然后进行模型训练，这里没有用我们训练好的模型，而是使用huggingface上的公开的<code>pegasus-large</code>作为训练起点，为了演示目的，我们只运行一个epoch，大约需要5min</p>
-<pre tabindex=0><code>!python -u examples/pytorch/summarization/run_summarization.py \
---model_name_or_path google/pegasus-large \
---do_train \
---do_eval \
---per_device_train_batch_size=2 \
---per_device_eval_batch_size=1 \
---save_strategy epoch \
---evaluation_strategy epoch \
---overwrite_output_dir \
---predict_with_generate \
---train_file './data/hp/summary/news_summary_cleaned_small_train.csv' \
---validation_file './data/hp/summary/news_summary_cleaned_small_test.csv' \
---text_column 'text' \
---summary_column 'headlines' \
---output_dir='./models/local_train/pegasus-hp' \
---num_train_epochs=1.0 \
---eval_steps=500 \
---save_total_limit=3 \
---source_prefix &quot;summarize: &quot; &gt; train_pegasus.log
-</code></pre><p>训练完成后，会提示日志信息如下</p>
+<h3 id=1公开数据集-英文>1.公开数据集 (英文)</h3>
 <ul>
-<li>train
-<img src=../pics/02pegasus/07.png alt></li>
-<li>eval
-<img src=../pics/02pegasus/08.png alt></li>
+<li><strong>XSUM</strong> 227k BBC articles</li>
+<li><strong>CNN/Dailymail</strong>，93k articles from the CNN, 220k articles from the Daily Mail</li>
+<li><strong>NEWSROOM</strong>，1.3M article-summary pairs written by authors and editors in the newsrooms of 38 major publications
+Multi-News，56k pairs of news articles and their human-written summaries from the http://sitenewser.com</li>
+<li><strong>Gigaword</strong>，4M examples extracted from news articles，the task is to generate theheadline from the first sentence</li>
+<li><strong>arXiv, PubMed</strong>，two long documentdatasets of scientific publications from http://arXiv.org (113k) andPubMed (215k). The task is to generate the abstract fromthe paper body.</li>
+<li><strong>BIGPATENT</strong>，1.3 millionU.S. patents along with human summaries under nine patent classification categories</li>
+<li><strong>WikiHow</strong>在线http://WikiHow.com网站上的大量说明数据集。 200k示例中的每一个示例都包含多个指令步骤段落以及一个摘要句子。 任务是从段落中生成串联的摘要句。</li>
+<li><strong>Reddit TIFU</strong>，120K posts of informal stories from the online discussion forum Reddit</li>
+<li><strong>AESLC</strong> 18k email bodies and their subjects from the Enron corpus</li>
+<li><strong>BillSum</strong> 23k USCongressional bills and human-written reference summaries from the 103rd-115th (1993-2018) sessions of Congress.</li>
 </ul>
-<p>模型结果文件及相应的日志等信息会自动保存在<code>./models/local_train/pegasus-hp/checkpoint-500</code></p>
-<p><img src=../pics/02pegasus/09.png alt></p>
-<h2 id=结果本地测试>结果本地测试</h2>
-<p>我们可以直接用这个产生的模型文件进行本地推理。注意这里的模型文件地址的指定为你刚刚训练产生的。</p>
-<pre tabindex=0><code>import pandas as pd
-df=pd.read_csv('./data/hp/summary/news_summary_cleaned_small_test.csv')
-print('原文:',df.loc[0,'text'])
-print('真实标签:',df.loc[0,'headlines'])
-from transformers import pipeline
-summarizer = pipeline(&quot;summarization&quot;, model=&quot;./models/local_train/pegasus-hp/checkpoint-500&quot;)
-print('模型预测:',summarizer(df.loc[0,'text'], max_length=50)[0]['summary_text'])
-</code></pre><p>输出如下</p>
-<pre tabindex=0><code>原文: Germany on Wednesday accused Vietnam of kidnapping a former Vietnamese oil executive Trinh Xuan Thanh, who allegedly sought asylum in Berlin, and taking him home to face accusations of corruption. Germany expelled a Vietnamese intelligence officer over the suspected kidnapping and demanded that Vietnam allow Thanh to return to Germany. However, Vietnam said Thanh had returned home by himself.
-真实标签: Germany accuses Vietnam of kidnapping asylum seeker 
-模型预测: Germany accuses Vietnam of kidnapping ex-oil exec, taking him home
-
-</code></pre><p>到这里，就完成了一个模型的训练过程。</p>
+<h3 id=2公开数据集-中文>2.公开数据集 (中文)</h3>
+<ul>
+<li>哈工大的新浪微博短文本摘要 <a href="https://link.zhihu.com/?target=http%3A//icrc.hitsz.edu.cn/Article/show/139.html">LCSTS</a></li>
+<li>教育新闻自动摘要语料<a href="https://link.zhihu.com/?target=https%3A//github.com/wonderfulsuccess/chinese_abstractive_corpus">chinese_abstractive_corpus</a></li>
+<li>NLPCC 2017 task3 <a href="https://link.zhihu.com/?target=http%3A//tcci.ccf.org.cn/conference/2017/taskdata.php">Single Document Summarization</a></li>
+<li>娱乐新闻等 <a href="https://link.zhihu.com/?target=https%3A//www.dcjingsai.com/common/cmpt/%25E2%2580%259C%25E7%25A5%259E%25E7%25AD%2596%25E6%259D%25AF%25E2%2580%259D2018%25E9%25AB%2598%25E6%25A0%25A1%25E7%25AE%2597%25E6%25B3%2595%25E5%25A4%25A7%25E5%25B8%2588%25E8%25B5%259B_%25E7%25AB%259E%25E8%25B5%259B%25E4%25BF%25A1%25E6%2581%25AF.html">“神策杯”2018高校算法大师赛</a></li>
+<li>清华 THUCNews
+总数量：830749个样本；
+标题：平均字数 19，字数标准差 4，最大字数 48，最小数字 4；
+正文：平均字数 892，字数标准差 1012，最大字数 78796，最小数字 31；</li>
+</ul>
 <footer class=footline>
 </footer>
 </div>
 </div>
 <div id=navigation>
-<a class="nav nav-prev" href=../02pegasus.html title="动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验"> <i class="fa fa-chevron-left"></i></a>
-<a class="nav nav-next" href=../02pegasus/0502train.html title=Pegasus模型增强训练 style=margin-right:0><i class="fa fa-chevron-right"></i></a>
+<a class="nav nav-prev" href=../01introduction/100algorithm.html title="1.1 算法概述"> <i class="fa fa-chevron-left"></i></a>
+<a class="nav nav-next" href=../01introduction/300metrics.html title="1.3 评估指标" style=margin-right:0><i class="fa fa-chevron-right"></i></a>
 </div>
 </section>
 <div style=left:-1000px;overflow:scroll;position:absolute;top:-1000px;border:none;box-sizing:content-box;height:200px;margin:0;padding:0;width:200px>

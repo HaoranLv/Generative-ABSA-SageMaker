@@ -6,7 +6,7 @@
 <meta name=description content="My AWS Workshop">
 <meta name=author content="Jane Architect">
 <link rel=icon href=./images/favicon.png type=image/png>
-<title>Categories :: SpotBot Workshop</title>
+<title>Introduction :: SpotBot Workshop</title>
 <link href=./css/nucleus.css rel=stylesheet>
 <link href=./css/fontawesome-all.min.css rel=stylesheet>
 <link href=./css/hybrid.css rel=stylesheet>
@@ -21,7 +21,7 @@
 <script src=./js/jquery-3.3.1.min.js></script>
 <style>:root #header+#content>#left>#rlblock_left{display:none!important}:not(pre)>code+span.copy-to-clipboard{display:none}</style>
 </head>
-<body data-url=./categories.html>
+<body data-url=./01introduction.html>
 <nav id=sidebar class=showVisitedLinks>
 <div id=header-wrapper>
 <div id=header>
@@ -47,7 +47,9 @@
 </section>
 <div class=highlightable>
 <ul class=topics>
-<li data-nav-id=/01introduction.html title=Introduction class=dd-item>
+<li data-nav-id=/01introduction.html title=Introduction class="dd-item
+parent
+active">
 <a href=./01introduction.html>
 Introduction
 <i class="fas fa-check read-icon"></i>
@@ -73,27 +75,41 @@ Introduction
 </li>
 </ul>
 </li>
-<li data-nav-id=/02pegasus.html title="动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验" class=dd-item>
-<a href=./02pegasus.html>
-动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验
+<li data-nav-id=/02extraction.html title="动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型" class=dd-item>
+<a href=./02extraction.html>
+动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型
 <i class="fas fa-check read-icon"></i>
 </a>
 <ul>
-<li data-nav-id=/02pegasus/0501train.html title=Pegasus模型训练 class=dd-item>
-<a href=./02pegasus/0501train.html>
-Pegasus模型训练
+<li data-nav-id=/02extraction/02train/_index-1.html title=抽取式ABSA模型训练 class=dd-item>
+<a href=./02extraction/02train/_index-1.html>
+抽取式ABSA模型训练
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/02pegasus/0502train.html title=Pegasus模型增强训练 class=dd-item>
-<a href=./02pegasus/0502train.html>
-Pegasus模型增强训练
+<li data-nav-id=/02extraction/01train.html title=抽取式ABSA模型训练 class=dd-item>
+<a href=./02extraction/01train.html>
+抽取式ABSA模型训练
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/02pegasus/0503deploy.html title=Pegasus模型部署 class=dd-item>
-<a href=./02pegasus/0503deploy.html>
-Pegasus模型部署
+</ul>
+</li>
+<li data-nav-id=/03generative.html title="动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署" class=dd-item>
+<a href=./03generative.html>
+动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署
+<i class="fas fa-check read-icon"></i>
+</a>
+<ul>
+<li data-nav-id=/03generative/0501train.html title=生成式的ABSA模型训练 class=dd-item>
+<a href=./03generative/0501train.html>
+生成式的ABSA模型训练
+<i class="fas fa-check read-icon"></i>
+</a>
+</li>
+<li data-nav-id=/03generative/0503deploy.html title=生成式ABSA模型部署 class=dd-item>
+<a href=./03generative/0503deploy.html>
+生成式ABSA模型部署
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
@@ -124,11 +140,16 @@ Pegasus模型部署
 </span>
 <span id=toc-menu><i class="fas fa-list-alt"></i></span>
 <span class=links>
-<a href=./>AWS Datalab-文档摘要</a> > Categories
+<a href=./>AWS Datalab-细粒度情感分析</a> > Introduction
 </span>
 </div>
 <div class=progress>
 <div class=wrapper>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#text-summary文档摘要>text summary（文档摘要）</a></li>
+</ul>
+</nav>
 </div>
 </div>
 </div>
@@ -137,17 +158,22 @@ Pegasus模型部署
 </div>
 <div id=body-inner>
 <h1>
-category ::
-Categories
+Introduction
 </h1>
-<ul>
-</ul>
+<h2 id=text-summary文档摘要>text summary（文档摘要）</h2>
+<p>随着互联网产生的文本数据越来越多，文本信息过载问题日益严重，对各类文本进行一个“降 维”处理显得非常必要，文本摘要便是其中一个重要的手段。
+文本摘要旨在将文本或文本集合转换为包含关键信息的简短摘要。
+文本摘要按照输入类型可分为单文档摘要和多文档摘要。单文档摘要从给定的一个文档中生成摘要，多文档摘要从给定的一组主题相关的文档中生成摘要。
+按照输出类型可分为抽取式摘要和生成式摘要。抽取式摘要从源文档中抽取关键句和关键词组成摘要，摘要全部来源于原文。生成式摘要根据原文，允许生成新的词语、短语来组成摘要。
+按照有无监督数据可以分为有监督摘要和无监督摘要。
+本文主要关注单文档、有监督、抽取式、生成式摘要。</p>
 <footer class=footline>
 </footer>
 </div>
 </div>
 <div id=navigation>
-<a class="nav nav-next" href=./01introduction.html title=Introduction style=margin-right:0><i class="fa fa-chevron-right"></i></a>
+<a class="nav nav-prev" href=./ title="AWS Datalab-细粒度情感分析"> <i class="fa fa-chevron-left"></i></a>
+<a class="nav nav-next" href=./01introduction/100algorithm.html title="1.1 算法概述" style=margin-right:0><i class="fa fa-chevron-right"></i></a>
 </div>
 </section>
 <div style=left:-1000px;overflow:scroll;position:absolute;top:-1000px;border:none;box-sizing:content-box;height:200px;margin:0;padding:0;width:200px>

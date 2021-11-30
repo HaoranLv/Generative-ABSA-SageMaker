@@ -6,7 +6,7 @@
 <meta name=description content="My AWS Workshop">
 <meta name=author content="Jane Architect">
 <link rel=icon href=./images/favicon.png type=image/png>
-<title>AWS Datalab-文档摘要 :: SpotBot Workshop</title>
+<title>动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署 :: SpotBot Workshop</title>
 <link href=./css/nucleus.css rel=stylesheet>
 <link href=./css/fontawesome-all.min.css rel=stylesheet>
 <link href=./css/hybrid.css rel=stylesheet>
@@ -21,7 +21,7 @@
 <script src=./js/jquery-3.3.1.min.js></script>
 <style>:root #header+#content>#left>#rlblock_left{display:none!important}:not(pre)>code+span.copy-to-clipboard{display:none}</style>
 </head>
-<body data-url=./>
+<body data-url=./03generative.html>
 <nav id=sidebar class=showVisitedLinks>
 <div id=header-wrapper>
 <div id=header>
@@ -73,27 +73,43 @@ Introduction
 </li>
 </ul>
 </li>
-<li data-nav-id=/02pegasus.html title="动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验" class=dd-item>
-<a href=./02pegasus.html>
-动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验
+<li data-nav-id=/02extraction.html title="动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型" class=dd-item>
+<a href=./02extraction.html>
+动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型
 <i class="fas fa-check read-icon"></i>
 </a>
 <ul>
-<li data-nav-id=/02pegasus/0501train.html title=Pegasus模型训练 class=dd-item>
-<a href=./02pegasus/0501train.html>
-Pegasus模型训练
+<li data-nav-id=/02extraction/02train/_index-1.html title=抽取式ABSA模型训练 class=dd-item>
+<a href=./02extraction/02train/_index-1.html>
+抽取式ABSA模型训练
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/02pegasus/0502train.html title=Pegasus模型增强训练 class=dd-item>
-<a href=./02pegasus/0502train.html>
-Pegasus模型增强训练
+<li data-nav-id=/02extraction/01train.html title=抽取式ABSA模型训练 class=dd-item>
+<a href=./02extraction/01train.html>
+抽取式ABSA模型训练
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/02pegasus/0503deploy.html title=Pegasus模型部署 class=dd-item>
-<a href=./02pegasus/0503deploy.html>
-Pegasus模型部署
+</ul>
+</li>
+<li data-nav-id=/03generative.html title="动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署" class="dd-item
+parent
+active">
+<a href=./03generative.html>
+动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署
+<i class="fas fa-check read-icon"></i>
+</a>
+<ul>
+<li data-nav-id=/03generative/0501train.html title=生成式的ABSA模型训练 class=dd-item>
+<a href=./03generative/0501train.html>
+生成式的ABSA模型训练
+<i class="fas fa-check read-icon"></i>
+</a>
+</li>
+<li data-nav-id=/03generative/0503deploy.html title=生成式ABSA模型部署 class=dd-item>
+<a href=./03generative/0503deploy.html>
+生成式ABSA模型部署
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
@@ -114,48 +130,74 @@ Pegasus模型部署
 <section id=body>
 <div id=overlay></div>
 <div class="padding highlightable">
+<div>
+<div id=top-bar>
+<div id=breadcrumbs itemscope itemtype=http://data-vocabulary.org/Breadcrumb>
+<span id=sidebar-toggle-span>
+<a href=# id=sidebar-toggle data-sidebar-toggle>
+<i class="fas fa-bars"></i>
+</a>
+</span>
+<span id=toc-menu><i class="fas fa-list-alt"></i></span>
+<span class=links>
+<a href=./>AWS Datalab-细粒度情感分析</a> > 动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署
+</span>
+</div>
+<div class=progress>
+<div class=wrapper>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#模型架构>模型架构</a></li>
+<li><a href=#gsg预训目标>GSG预训目标</a></li>
+<li><a href=#模型表现>模型表现</a></li>
+<li><a href=#reference>reference</a></li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+</div>
 <div id=head-tags>
 </div>
 <div id=body-inner>
-<span id=sidebar-toggle-span>
-<a href=# id=sidebar-toggle data-sidebar-toggle><i class="fas fa-bars"></i> navigation</a>
-</span>
-<p><strong>Author</strong></p>
+<h1>
+动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署
+</h1>
+<h2 id=模型架构>模型架构</h2>
+<p>Pegasus是一个标准的Transformer架构，其全称是：利用提取的间隙句进行摘要概括的预训练模型（Pre-training with Extracted Gap-sentences for Abstractive Summarization）。就是设计一种间隙句生成的自监督预训练目标（GSG），来改进生成摘要的微调性能。</p>
+<p><img src=../pics/02pegasus/01.png alt></p>
+<h2 id=gsg预训目标>GSG预训目标</h2>
 <ul>
-<li>JUNYI LIU (AWS GCR Applied Scientist)</li>
+<li>Mask掉整个句子</li>
+<li>将Mask的句子拼接成摘要</li>
+<li>使用上下文补全</li>
 </ul>
-<h2 id=概述>概述</h2>
-<p>本次workshop分为几个部分</p>
+<p>Mask策略</p>
+<p><img src=../pics/02pegasus/02.png alt></p>
+<h2 id=模型表现>模型表现</h2>
+<p>Pegasus-large在各个摘要数据集上的结果同之前的SOTA对比：在所有数据集上均得到了SOTA的性能表现。</p>
+<p><img src=../pics/02pegasus/03.png alt>
+<img src=../pics/02pegasus/04.png alt></p>
+<h2 id=reference>reference</h2>
 <ul>
-<li>背景介绍- what is text summary？</li>
-<li>基于Amazon SageMaker的TEXTRANK模型训练动手实验</li>
-<li>基于Amazon SageMaker的Huggingface训练一个BART英文摘要模型
-<ul>
-<li>模型训练ß</li>
-<li>模型部署</li>
+<li>paper： <a href=https://arxiv.org/abs/1912.08777>https://arxiv.org/abs/1912.08777</a></li>
+<li>source code：https://github.com/google-research/pegasus</li>
 </ul>
-</li>
-<li>基于Amazon SageMaker的MT5模型训练动手实验
-<ul>
-<li>本地模型训练</li>
-<li>启动模型训练任务</li>
-<li>模型部署</li>
-</ul>
-</li>
-<li>基于Amazon SageMaker的CPT模型训练动手实验
-<ul>
-<li>模型训练</li>
-<li>模型增强训练</li>
-<li>模型部署</li>
-</ul>
-</li>
-</ul>
-<h2 id=本次-workshop-前提>本次 workshop 前提</h2>
-<p>本次 workshop 建议在 US-WEST-2 Region 使用。为了演示方便，所以本 workshop 所有的演示都会以US-WEST-2 Region 为例。</p>
+<p>@misc{zhang2019pegasus,
+title={PEGASUS: Pre-training with Extracted Gap-sentences for Abstractive Summarization},
+author={Jingqing Zhang and Yao Zhao and Mohammad Saleh and Peter J. Liu},
+year={2020},
+eprint={1912.08777},
+archivePrefix={ICML},
+primaryClass={cs.CL}
+}</p>
+<footer class=footline>
+</footer>
 </div>
 </div>
 <div id=navigation>
-<a class="nav nav-next" href=./01introduction.html title=Introduction style=margin-right:0><i class="fa fa-chevron-right"></i></a>
+<a class="nav nav-prev" href=./02extraction/01train.html title=抽取式ABSA模型训练> <i class="fa fa-chevron-left"></i></a>
+<a class="nav nav-next" href=./03generative/0501train.html title=生成式的ABSA模型训练 style=margin-right:0><i class="fa fa-chevron-right"></i></a>
 </div>
 </section>
 <div style=left:-1000px;overflow:scroll;position:absolute;top:-1000px;border:none;box-sizing:content-box;height:200px;margin:0;padding:0;width:200px>

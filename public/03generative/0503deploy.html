@@ -6,7 +6,7 @@
 <meta name=description content="My AWS Workshop">
 <meta name=author content="Jane Architect">
 <link rel=icon href=../images/favicon.png type=image/png>
-<title>1.2 数据集 :: SpotBot Workshop</title>
+<title>生成式ABSA模型部署 :: SpotBot Workshop</title>
 <link href=../css/nucleus.css rel=stylesheet>
 <link href=../css/fontawesome-all.min.css rel=stylesheet>
 <link href=../css/hybrid.css rel=stylesheet>
@@ -21,7 +21,7 @@
 <script src=../js/jquery-3.3.1.min.js></script>
 <style>:root #header+#content>#left>#rlblock_left{display:none!important}:not(pre)>code+span.copy-to-clipboard{display:none}</style>
 </head>
-<body data-url=../01introduction/200data.html>
+<body data-url=../03generative/0503deploy.html>
 <nav id=sidebar class=showVisitedLinks>
 <div id=header-wrapper>
 <div id=header>
@@ -47,8 +47,7 @@
 </section>
 <div class=highlightable>
 <ul class=topics>
-<li data-nav-id=/01introduction.html title=Introduction class="dd-item
-parent">
+<li data-nav-id=/01introduction.html title=Introduction class=dd-item>
 <a href=../01introduction.html>
 Introduction
 <i class="fas fa-check read-icon"></i>
@@ -60,7 +59,7 @@ Introduction
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/01introduction/200data.html title="1.2 数据集" class="dd-item active">
+<li data-nav-id=/01introduction/200data.html title="1.2 数据集" class=dd-item>
 <a href=../01introduction/200data.html>
 1.2 数据集
 <i class="fas fa-check read-icon"></i>
@@ -74,27 +73,44 @@ Introduction
 </li>
 </ul>
 </li>
-<li data-nav-id=/02pegasus.html title="动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验" class=dd-item>
-<a href=../02pegasus.html>
-动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验
+<li data-nav-id=/02extraction.html title="动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型" class=dd-item>
+<a href=../02extraction.html>
+动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型
 <i class="fas fa-check read-icon"></i>
 </a>
 <ul>
-<li data-nav-id=/02pegasus/0501train.html title=Pegasus模型训练 class=dd-item>
-<a href=../02pegasus/0501train.html>
-Pegasus模型训练
+<li data-nav-id=/02extraction/02train/_index-1.html title=抽取式ABSA模型训练 class=dd-item>
+<a href=../02extraction/02train/_index-1.html>
+抽取式ABSA模型训练
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/02pegasus/0502train.html title=Pegasus模型增强训练 class=dd-item>
-<a href=../02pegasus/0502train.html>
-Pegasus模型增强训练
+<li data-nav-id=/02extraction/01train.html title=抽取式ABSA模型训练 class=dd-item>
+<a href=../02extraction/01train.html>
+抽取式ABSA模型训练
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/02pegasus/0503deploy.html title=Pegasus模型部署 class=dd-item>
-<a href=../02pegasus/0503deploy.html>
-Pegasus模型部署
+</ul>
+</li>
+<li data-nav-id=/03generative.html title="动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署" class="dd-item
+parent">
+<a href=../03generative.html>
+动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署
+<i class="fas fa-check read-icon"></i>
+</a>
+<ul>
+<li data-nav-id=/03generative/0501train.html title=生成式的ABSA模型训练 class=dd-item>
+<a href=../03generative/0501train.html>
+生成式的ABSA模型训练
+<i class="fas fa-check read-icon"></i>
+</a>
+</li>
+<li data-nav-id=/03generative/0503deploy.html title=生成式ABSA模型部署 class="dd-item
+parent
+active">
+<a href=../03generative/0503deploy.html>
+生成式ABSA模型部署
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
@@ -125,21 +141,12 @@ Pegasus模型部署
 </span>
 <span id=toc-menu><i class="fas fa-list-alt"></i></span>
 <span class=links>
-<a href=../>AWS Datalab-文档摘要</a> > <a href=../01introduction.html>Introduction</a> > 1.2 数据集
+<a href=../>AWS Datalab-细粒度情感分析</a> > <a href=../03generative.html>动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署</a> > 生成式ABSA模型部署
 </span>
 </div>
 <div class=progress>
 <div class=wrapper>
-<nav id=TableOfContents>
-<ul>
-<li>
-<ul>
-<li><a href=#1公开数据集-英文>1.公开数据集 (英文)</a></li>
-<li><a href=#2公开数据集-中文>2.公开数据集 (中文)</a></li>
-</ul>
-</li>
-</ul>
-</nav>
+<nav id=TableOfContents></nav>
 </div>
 </div>
 </div>
@@ -148,40 +155,50 @@ Pegasus模型部署
 </div>
 <div id=body-inner>
 <h1>
-1.2 数据集
+生成式ABSA模型部署
 </h1>
-<h3 id=1公开数据集-英文>1.公开数据集 (英文)</h3>
-<ul>
-<li><strong>XSUM</strong> 227k BBC articles</li>
-<li><strong>CNN/Dailymail</strong>，93k articles from the CNN, 220k articles from the Daily Mail</li>
-<li><strong>NEWSROOM</strong>，1.3M article-summary pairs written by authors and editors in the newsrooms of 38 major publications
-Multi-News，56k pairs of news articles and their human-written summaries from the http://sitenewser.com</li>
-<li><strong>Gigaword</strong>，4M examples extracted from news articles，the task is to generate theheadline from the first sentence</li>
-<li><strong>arXiv, PubMed</strong>，two long documentdatasets of scientific publications from http://arXiv.org (113k) andPubMed (215k). The task is to generate the abstract fromthe paper body.</li>
-<li><strong>BIGPATENT</strong>，1.3 millionU.S. patents along with human summaries under nine patent classification categories</li>
-<li><strong>WikiHow</strong>在线http://WikiHow.com网站上的大量说明数据集。 200k示例中的每一个示例都包含多个指令步骤段落以及一个摘要句子。 任务是从段落中生成串联的摘要句。</li>
-<li><strong>Reddit TIFU</strong>，120K posts of informal stories from the online discussion forum Reddit</li>
-<li><strong>AESLC</strong> 18k email bodies and their subjects from the Enron corpus</li>
-<li><strong>BillSum</strong> 23k USCongressional bills and human-written reference summaries from the 103rd-115th (1993-2018) sessions of Congress.</li>
-</ul>
-<h3 id=2公开数据集-中文>2.公开数据集 (中文)</h3>
-<ul>
-<li>哈工大的新浪微博短文本摘要 <a href="https://link.zhihu.com/?target=http%3A//icrc.hitsz.edu.cn/Article/show/139.html">LCSTS</a></li>
-<li>教育新闻自动摘要语料<a href="https://link.zhihu.com/?target=https%3A//github.com/wonderfulsuccess/chinese_abstractive_corpus">chinese_abstractive_corpus</a></li>
-<li>NLPCC 2017 task3 <a href="https://link.zhihu.com/?target=http%3A//tcci.ccf.org.cn/conference/2017/taskdata.php">Single Document Summarization</a></li>
-<li>娱乐新闻等 <a href="https://link.zhihu.com/?target=https%3A//www.dcjingsai.com/common/cmpt/%25E2%2580%259C%25E7%25A5%259E%25E7%25AD%2596%25E6%259D%25AF%25E2%2580%259D2018%25E9%25AB%2598%25E6%25A0%25A1%25E7%25AE%2597%25E6%25B3%2595%25E5%25A4%25A7%25E5%25B8%2588%25E8%25B5%259B_%25E7%25AB%259E%25E8%25B5%259B%25E4%25BF%25A1%25E6%2581%25AF.html">“神策杯”2018高校算法大师赛</a></li>
-<li>清华 THUCNews
-总数量：830749个样本；
-标题：平均字数 19，字数标准差 4，最大字数 48，最小数字 4；
-正文：平均字数 892，字数标准差 1012，最大字数 78796，最小数字 31；</li>
-</ul>
+<p>首先打包镜像并推送</p>
+<pre tabindex=0><code>sh endpoint/build_and_push.sh generative-absa
+</code></pre><p>然后部署一个预置的endpoint</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=color:#75715e>#注意修改：847380964353.dkr.ecr.ap-northeast-1.amazonaws.com/generative-absa为自己对应的</span>
+
+!python endpoint/create_endpoint.py <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>--endpoint_ecr_image_path <span style=color:#e6db74>&#34;847380964353.dkr.ecr.ap-northeast-1.amazonaws.com/generative-absa&#34;</span> <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>--endpoint_name <span style=color:#e6db74>&#39;generative-absa&#39;</span> <span style=color:#ae81ff>\
+</span><span style=color:#ae81ff></span>--instance_type <span style=color:#e6db74>&#34;ml.p3.2xlarge&#34;</span>
+</code></pre></div><p>输出</p>
+<pre tabindex=0><code>model_name:  generative-absa
+endpoint_ecr_image_path:  847380964353.dkr.ecr.ap-northeast-1.amazonaws.com/generative-absa
+&lt;&lt;&lt; Completed model endpoint deployment. generative-absa
+</code></pre><p><img src=../pics/02pegasus/14.png alt></p>
+<p>当状态变为<code>InService</code>即代表部署完成</p>
+<p>在部署结束后，看到SageMaker控制台生成了对应的endpoint,可以使用如下客户端代码测试调用</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#f92672>%%</span>time 
+
+<span style=color:#f92672>from</span> boto3.session <span style=color:#f92672>import</span> Session
+<span style=color:#f92672>import</span> json
+data<span style=color:#f92672>=</span>{<span style=color:#e6db74>&#34;data&#34;</span>: <span style=color:#e6db74>&#39;早餐一般般，勉勉强强填饱肚子，样式可选性不多，可能是疫情的影响吧。不过酒店的服务不错，五个小孩早餐都送了，点👍。由于酒店历史有点长，所以设施感觉一般般，整体还可以，三钻吧&#39;</span>}
+session <span style=color:#f92672>=</span> Session()
+    
+runtime <span style=color:#f92672>=</span> session<span style=color:#f92672>.</span>client(<span style=color:#e6db74>&#34;runtime.sagemaker&#34;</span>)
+response <span style=color:#f92672>=</span> runtime<span style=color:#f92672>.</span>invoke_endpoint(
+    EndpointName<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;absa&#39;</span>,
+    ContentType<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;application/json&#34;</span>,
+    Body<span style=color:#f92672>=</span>json<span style=color:#f92672>.</span>dumps(data),
+)
+
+result <span style=color:#f92672>=</span> json<span style=color:#f92672>.</span>loads(response[<span style=color:#e6db74>&#34;Body&#34;</span>]<span style=color:#f92672>.</span>read())
+print (result)
+</code></pre></div><p>结果如下</p>
+<pre tabindex=0><code>{'result': '(小孩早餐, 儿童餐饮, 送了点👍, 正)', 'infer_time': '0:00:00.725859'}
+</code></pre>
 <footer class=footline>
 </footer>
 </div>
 </div>
 <div id=navigation>
-<a class="nav nav-prev" href=../01introduction/100algorithm.html title="1.1 算法概述"> <i class="fa fa-chevron-left"></i></a>
-<a class="nav nav-next" href=../01introduction/300metrics.html title="1.3 评估指标" style=margin-right:0><i class="fa fa-chevron-right"></i></a>
+<a class="nav nav-prev" href=../03generative/0501train.html title=生成式的ABSA模型训练> <i class="fa fa-chevron-left"></i></a>
+<a class="nav nav-next" href=../01introduction.html title=Introduction style=margin-right:0><i class="fa fa-chevron-right"></i></a>
 </div>
 </section>
 <div style=left:-1000px;overflow:scroll;position:absolute;top:-1000px;border:none;box-sizing:content-box;height:200px;margin:0;padding:0;width:200px>

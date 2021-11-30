@@ -6,7 +6,7 @@
 <meta name=description content="My AWS Workshop">
 <meta name=author content="Jane Architect">
 <link rel=icon href=../images/favicon.png type=image/png>
-<title>Pegasus模型增强训练 :: SpotBot Workshop</title>
+<title>抽取式ABSA模型训练 :: SpotBot Workshop</title>
 <link href=../css/nucleus.css rel=stylesheet>
 <link href=../css/fontawesome-all.min.css rel=stylesheet>
 <link href=../css/hybrid.css rel=stylesheet>
@@ -21,7 +21,7 @@
 <script src=../js/jquery-3.3.1.min.js></script>
 <style>:root #header+#content>#left>#rlblock_left{display:none!important}:not(pre)>code+span.copy-to-clipboard{display:none}</style>
 </head>
-<body data-url=../02pegasus/0502train.html>
+<body data-url=../02extraction/01train.html>
 <nav id=sidebar class=showVisitedLinks>
 <div id=header-wrapper>
 <div id=header>
@@ -73,30 +73,44 @@ Introduction
 </li>
 </ul>
 </li>
-<li data-nav-id=/02pegasus.html title="动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验" class="dd-item
+<li data-nav-id=/02extraction.html title="动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型" class="dd-item
 parent">
-<a href=../02pegasus.html>
-动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验
+<a href=../02extraction.html>
+动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型
 <i class="fas fa-check read-icon"></i>
 </a>
 <ul>
-<li data-nav-id=/02pegasus/0501train.html title=Pegasus模型训练 class=dd-item>
-<a href=../02pegasus/0501train.html>
-Pegasus模型训练
+<li data-nav-id=/02extraction/02train/_index-1.html title=抽取式ABSA模型训练 class=dd-item>
+<a href=../02extraction/02train/_index-1.html>
+抽取式ABSA模型训练
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/02pegasus/0502train.html title=Pegasus模型增强训练 class="dd-item
+<li data-nav-id=/02extraction/01train.html title=抽取式ABSA模型训练 class="dd-item
 parent
 active">
-<a href=../02pegasus/0502train.html>
-Pegasus模型增强训练
+<a href=../02extraction/01train.html>
+抽取式ABSA模型训练
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/02pegasus/0503deploy.html title=Pegasus模型部署 class=dd-item>
-<a href=../02pegasus/0503deploy.html>
-Pegasus模型部署
+</ul>
+</li>
+<li data-nav-id=/03generative.html title="动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署" class=dd-item>
+<a href=../03generative.html>
+动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署
+<i class="fas fa-check read-icon"></i>
+</a>
+<ul>
+<li data-nav-id=/03generative/0501train.html title=生成式的ABSA模型训练 class=dd-item>
+<a href=../03generative/0501train.html>
+生成式的ABSA模型训练
+<i class="fas fa-check read-icon"></i>
+</a>
+</li>
+<li data-nav-id=/03generative/0503deploy.html title=生成式ABSA模型部署 class=dd-item>
+<a href=../03generative/0503deploy.html>
+生成式ABSA模型部署
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
@@ -127,12 +141,17 @@ Pegasus模型部署
 </span>
 <span id=toc-menu><i class="fas fa-list-alt"></i></span>
 <span class=links>
-<a href=../>AWS Datalab-文档摘要</a> > <a href=../02pegasus.html>动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验</a> > Pegasus模型增强训练
+<a href=../>AWS Datalab-细粒度情感分析</a> > <a href=../02extraction.html>动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型</a> > 抽取式ABSA模型训练
 </span>
 </div>
 <div class=progress>
 <div class=wrapper>
-<nav id=TableOfContents></nav>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#数据准备>数据准备</a></li>
+<li><a href=#模型训练>模型训练</a></li>
+</ul>
+</nav>
 </div>
 </div>
 </div>
@@ -141,51 +160,46 @@ Pegasus模型部署
 </div>
 <div id=body-inner>
 <h1>
-Pegasus模型增强训练
+抽取式ABSA模型训练
 </h1>
-<p>在完成本地训练后，接下来我们模拟一个增强训练过程。在我们刚才完成的训练任务中，产生了模型文件<code>./models/local_train/pegasus-hp/checkpoint-500</code>，然后，我们运行</p>
-<pre tabindex=0><code>!python -u examples/pytorch/summarization/run_summarization.py \
---model_name_or_path models/pretrain/pegasus/checkpoint-46314 \
---do_train \
---do_eval \
---per_device_train_batch_size=2 \
---per_device_eval_batch_size=1 \
---save_strategy epoch \
---evaluation_strategy epoch \
---overwrite_output_dir \
---predict_with_generate \
---train_file './data/hp/summary/news_summary_cleaned_small_train.csv' \
---validation_file './data/hp/summary/news_summary_cleaned_small_test.csv' \
---text_column 'text' \
---summary_column 'headlines' \
---output_dir='./models/local_train/pegasus-hp' \
---num_train_epochs=1.0 \
---eval_steps=500 \
---save_total_limit=3 \
---source_prefix &quot;summarize: &quot; &gt; train_pegasus_2.log
-</code></pre><p>我们可以看到，在训练时，日志中有如下的记录<code>loading weights file models/pretrain/pegasus/checkpoint-46314/pytorch_model.bin</code>说明模型是导入了一个之前训练的基础版本，也可以通过训练的loss值以及最终的rouge指标判断出这个结果是增强训练产生的。</p>
-<p><img src=../pics/02pegasus/13.png alt></p>
-<p>同样的，我们可以利用本地推理进行测试。</p>
-<p>本地测试，效果提升明显</p>
-<pre tabindex=0><code>import pandas as pd
-df=pd.read_csv('./data/hp/summary/news_summary_cleaned_small_test.csv')
-print('原文:',df.loc[0,'text'])
-print('真实标签:',df.loc[0,'headlines'])
-from transformers import pipeline
-summarizer = pipeline(&quot;summarization&quot;, model=&quot;./models/local_train/pegasus-hp/checkpoint-500&quot;)
-print('模型预测:',summarizer(df.loc[0,'text'], max_length=50)[0]['summary_text'])
-</code></pre><p>输出</p>
-<pre tabindex=0><code>原文: Germany on Wednesday accused Vietnam of kidnapping a former Vietnamese oil executive Trinh Xuan Thanh, who allegedly sought asylum in Berlin, and taking him home to face accusations of corruption. Germany expelled a Vietnamese intelligence officer over the suspected kidnapping and demanded that Vietnam allow Thanh to return to Germany. However, Vietnam said Thanh had returned home by himself.
-真实标签: Germany accuses Vietnam of kidnapping asylum seeker 
-模型预测: Germany accuses Vietnam of kidnapping ex-oil exec, taking him home
+<p>paper - A Multi-task Learning Model for Chinese-oriented Aspect Polarity Classification and Aspect Term Extraction。</p>
+<p>SOTA for ate task： <a href="https://paperswithcode.com/sota/aspect-based-sentiment-analysis-on-semeval?p=a-multi-task-learning-model-for-chinese">https://paperswithcode.com/sota/aspect-based-sentiment-analysis-on-semeval?p=a-multi-task-learning-model-for-chinese</a>
+我们现在会用sagemaker进行一个模型的本地训练，使用ml.p3.8xlarge机型。</p>
+<h2 id=数据准备>数据准备</h2>
+<p>首先下载代码</p>
+<pre tabindex=0><code>source activate pytorch_p37
+cd SageMaker
+git clone https://github.com/jackie930/PyABSA.git
+</code></pre><p>将数据<code>data1119.csv</code>上传到<code>PyABSA/data/data1109.csv</code></p>
+<h2 id=模型训练>模型训练</h2>
+<p>数据准备</p>
+<pre tabindex=0><code>cd PyABSA
+pip install termcolor update_checker findfile jupyterlab-git torch==1.10.0 transformers==4.12.3 autocuda spacy googledrivedownloader seqeval emoji
+python pyabsa/utils/preprocess.py --inpath './data/data1109.csv' --folder_name 'custom_atepc_1109' --task 'aptepc'
+</code></pre><p>然后进行模型训练，演示目的，只训练一个epoch</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#f92672>from</span> pyabsa.functional <span style=color:#f92672>import</span> ATEPCModelList
+<span style=color:#f92672>from</span> pyabsa.functional <span style=color:#f92672>import</span> Trainer, ATEPCTrainer
+<span style=color:#f92672>from</span> pyabsa.functional <span style=color:#f92672>import</span> ATEPCConfigManager
+
+atepc_config_custom <span style=color:#f92672>=</span> ATEPCConfigManager<span style=color:#f92672>.</span>get_atepc_config_chinese()
+atepc_config_custom<span style=color:#f92672>.</span>num_epoch <span style=color:#f92672>=</span> <span style=color:#ae81ff>2</span>
+atepc_config_custom<span style=color:#f92672>.</span>evaluate_begin <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>
+atepc_config_custom<span style=color:#f92672>.</span>log_step <span style=color:#f92672>=</span> <span style=color:#ae81ff>100</span>
+atepc_config_custom<span style=color:#f92672>.</span>model <span style=color:#f92672>=</span> ATEPCModelList<span style=color:#f92672>.</span>LCF_ATEPC
+
+aspect_extractor <span style=color:#f92672>=</span> ATEPCTrainer(config<span style=color:#f92672>=</span>atepc_config_custom, 
+                                dataset<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;./custom_atepc_1109&#39;</span>
+                                )
+</code></pre></div><p>训练完成后，模型评估</p>
+<pre tabindex=0><code>python utils/metrics_cacl.py --data_path --checkppoint
 </code></pre>
 <footer class=footline>
 </footer>
 </div>
 </div>
 <div id=navigation>
-<a class="nav nav-prev" href=../02pegasus/0501train.html title=Pegasus模型训练> <i class="fa fa-chevron-left"></i></a>
-<a class="nav nav-next" href=../02pegasus/0503deploy.html title=Pegasus模型部署 style=margin-right:0><i class="fa fa-chevron-right"></i></a>
+<a class="nav nav-prev" href=../02extraction/02train/_index-1.html title=抽取式ABSA模型训练> <i class="fa fa-chevron-left"></i></a>
+<a class="nav nav-next" href=../03generative.html title="动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署" style=margin-right:0><i class="fa fa-chevron-right"></i></a>
 </div>
 </section>
 <div style=left:-1000px;overflow:scroll;position:absolute;top:-1000px;border:none;box-sizing:content-box;height:200px;margin:0;padding:0;width:200px>

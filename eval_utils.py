@@ -442,7 +442,51 @@ def fix_pred_with_editdistance(all_predictions, sents, task):
         fixed_preds = all_predictions
 
     return fixed_preds
+def compute_f1_scores_cate(pred_pt, gold_pt):
+    """
+    Function to compute F1 scores with pred and gold pairs/triplets
+    The input needs to be already processed
+    """
+    # number of true postive, gold standard, predicted aspect terms
+    n_tp, n_gold, n_pred = 0, 0, 0
+    cls_tp={}
+    cls_n_pred={}
+    cls_n_gold={}
+    res={}
+    for i in range(len(pred_pt)):
+        gold_pt[i]=list(set(gold_pt[i]))
+        pred_pt[i]=list(set(pred_pt[i]))
+        n_gold += len(gold_pt[i])
+        n_pred += len(pred_pt[i])
+        # print(type(gold_pt[i]))
+        # print(type(pred_pt[i]))
+        for j in gold_pt[i]:
+            if j[0] not in cls_n_gold.keys():
+                cls_n_gold[j[0]]=1
+            else:
+                cls_n_gold[j[0]]+=1
+        for j in pred_pt[i]:
+            if j[0] not in cls_n_pred.keys():
+                cls_n_pred[j[0]]=1
+            else:
+                cls_n_pred[j[0]]+=1
+            if j in gold_pt[i]:
+                n_tp += 1
+                if j[0] not in cls_tp.keys():
+                    cls_tp[j[0]]=1
+                else:
+                    cls_tp[j[0]]+=1
+    for k in cls_tp.keys():
+        p= float(cls_tp[k]) / float(cls_n_pred[k]) if cls_n_pred[k] != 0 else 0
+        r = float(cls_tp[k]) / float(cls_n_gold[k]) if cls_n_gold[k] != 0 else 0
+        f1=2 * p * r/ (p + r) if p != 0 or r != 0 else 0
+        res[k]={'precision': p, 'recall': r, 'f1': f1}
+    precision = float(n_tp) / float(n_pred) if n_pred != 0 else 0
+    recall = float(n_tp) / float(n_gold) if n_gold != 0 else 0
+    f1 = 2 * precision * recall / (precision + recall) if precision != 0 or recall != 0 else 0
+    scores = {'precision': precision, 'recall': recall, 'f1': f1}
 
+    return scores,res
 
 def compute_f1_scores(pred_pt, gold_pt):
     """
@@ -501,6 +545,80 @@ def compute_f1_scores_idx(pred_pt, gold_pt):
     scores = {'precision': precision, 'recall': recall, 'f1': f1}
 
     return scores
+
+
+def get_label_term_list(labels):
+    res = []
+    for i in range(len(labels)):
+        res.append([j[0] for j in labels[i]])
+    return res
+
+
+def calculate_score_ate(prediction, labels):
+    n_tp, n_gold, n_pred = 0, 0, 0
+
+    labels_term = get_label_term_list(labels)
+    for i in range(len(prediction)):
+
+        gold_pt = labels_term[i]
+        # print (gold_pt)
+        pred_pt = prediction[i]
+        # print (pred_pt)
+        n_gold += len(gold_pt)
+        n_pred += len(pred_pt)
+        # print (n_gold)
+        # print (n_pred)
+
+        for t in pred_pt:
+            if t[0] in gold_pt:
+                n_tp += 1
+
+        precision = float(n_tp) / float(n_pred) if n_pred != 0 else 0
+        recall = float(n_tp) / float(n_gold) if n_gold != 0 else 0
+        f1 = 2 * precision * recall / (precision + recall) if precision != 0 or recall != 0 else 0
+        scores = {'precision': precision, 'recall': recall, 'f1': f1}
+    return scores
+
+
+def find_sentiment(x):
+    res = {}
+    for i in range(len(x)):
+#         print()
+        res[x[i][0]] = x[i][1]
+    return res
+
+
+def calculate_score_apc(prediction, labels):
+    # 只取aspect提取正确的部分,计算
+    n_tp, n_gold, n_pred,nn = 0, 0, 0,0
+    labels_term = get_label_term_list(labels)
+    print(labels_term[0])
+    for i in range(len(prediction)):
+        label_dict = find_sentiment(labels[i])
+#         print('asdasdas',label_dict)
+#         break
+        for t in prediction[i]:
+            if t[0] in labels_term[i]:
+                gold_pt = label_dict[t[0]]
+                pred_pt = t[1]
+                # print (pred_pt)
+                n_gold += 1
+                n_pred += 1
+                if gold_pt == pred_pt:
+                    n_tp += 1
+                else:
+                    nn+=1
+#                     print(prediction[i])
+#                     print(label_dict)
+#                     print(' ')
+                    break
+
+    precision = float(n_tp) / float(n_pred) if n_pred != 0 else 0
+    recall = float(n_tp) / float(n_gold) if n_gold != 0 else 0
+    f1 = 2 * precision * recall / (precision + recall) if precision != 0 or recall != 0 else 0
+    scores = {'precision': precision, 'recall': recall, 'f1': f1}
+
+    return scores,nn
 
 def compute_scores(pred_seqs, gold_seqs, sents, io_format, task, hasidx=False):
     """

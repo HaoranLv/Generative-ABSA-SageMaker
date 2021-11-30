@@ -6,7 +6,7 @@
 <meta name=description content="My AWS Workshop">
 <meta name=author content="Jane Architect">
 <link rel=icon href=./images/favicon.png type=image/png>
-<title>Tags :: SpotBot Workshop</title>
+<title>动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型 :: SpotBot Workshop</title>
 <link href=./css/nucleus.css rel=stylesheet>
 <link href=./css/fontawesome-all.min.css rel=stylesheet>
 <link href=./css/hybrid.css rel=stylesheet>
@@ -21,7 +21,7 @@
 <script src=./js/jquery-3.3.1.min.js></script>
 <style>:root #header+#content>#left>#rlblock_left{display:none!important}:not(pre)>code+span.copy-to-clipboard{display:none}</style>
 </head>
-<body data-url=./tags.html>
+<body data-url=./02extraction.html>
 <nav id=sidebar class=showVisitedLinks>
 <div id=header-wrapper>
 <div id=header>
@@ -73,27 +73,43 @@ Introduction
 </li>
 </ul>
 </li>
-<li data-nav-id=/02pegasus.html title="动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验" class=dd-item>
-<a href=./02pegasus.html>
-动手实验1: 基于Amazon SageMaker的Pegasus摘要模型训练动手实验
+<li data-nav-id=/02extraction.html title="动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型" class="dd-item
+parent
+active">
+<a href=./02extraction.html>
+动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型
 <i class="fas fa-check read-icon"></i>
 </a>
 <ul>
-<li data-nav-id=/02pegasus/0501train.html title=Pegasus模型训练 class=dd-item>
-<a href=./02pegasus/0501train.html>
-Pegasus模型训练
+<li data-nav-id=/02extraction/02train/_index-1.html title=抽取式ABSA模型训练 class=dd-item>
+<a href=./02extraction/02train/_index-1.html>
+抽取式ABSA模型训练
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/02pegasus/0502train.html title=Pegasus模型增强训练 class=dd-item>
-<a href=./02pegasus/0502train.html>
-Pegasus模型增强训练
+<li data-nav-id=/02extraction/01train.html title=抽取式ABSA模型训练 class=dd-item>
+<a href=./02extraction/01train.html>
+抽取式ABSA模型训练
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
-<li data-nav-id=/02pegasus/0503deploy.html title=Pegasus模型部署 class=dd-item>
-<a href=./02pegasus/0503deploy.html>
-Pegasus模型部署
+</ul>
+</li>
+<li data-nav-id=/03generative.html title="动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署" class=dd-item>
+<a href=./03generative.html>
+动手实验2: 基于Amazon SageMaker训练一个端到端生成式的ABSA模型以及部署
+<i class="fas fa-check read-icon"></i>
+</a>
+<ul>
+<li data-nav-id=/03generative/0501train.html title=生成式的ABSA模型训练 class=dd-item>
+<a href=./03generative/0501train.html>
+生成式的ABSA模型训练
+<i class="fas fa-check read-icon"></i>
+</a>
+</li>
+<li data-nav-id=/03generative/0503deploy.html title=生成式ABSA模型部署 class=dd-item>
+<a href=./03generative/0503deploy.html>
+生成式ABSA模型部署
 <i class="fas fa-check read-icon"></i>
 </a>
 </li>
@@ -124,11 +140,17 @@ Pegasus模型部署
 </span>
 <span id=toc-menu><i class="fas fa-list-alt"></i></span>
 <span class=links>
-<a href=./>AWS Datalab-文档摘要</a> > Tags
+<a href=./>AWS Datalab-细粒度情感分析</a> > 动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型
 </span>
 </div>
 <div class=progress>
 <div class=wrapper>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#数据准备>数据准备</a></li>
+<li><a href=#模型训练>模型训练</a></li>
+</ul>
+</nav>
 </div>
 </div>
 </div>
@@ -137,17 +159,46 @@ Pegasus模型部署
 </div>
 <div id=body-inner>
 <h1>
-tag ::
-Tags
+动手实验1: 基于Amazon SageMaker训练一个端到端抽取式的ABSA模型
 </h1>
-<ul>
-</ul>
+<p>paper - A Multi-task Learning Model for Chinese-oriented Aspect Polarity Classification and Aspect Term Extraction。</p>
+<p>SOTA for ate task： <a href="https://paperswithcode.com/sota/aspect-based-sentiment-analysis-on-semeval?p=a-multi-task-learning-model-for-chinese">https://paperswithcode.com/sota/aspect-based-sentiment-analysis-on-semeval?p=a-multi-task-learning-model-for-chinese</a>
+我们现在会用sagemaker进行一个模型的本地训练，使用ml.p3.8xlarge机型。</p>
+<h2 id=数据准备>数据准备</h2>
+<p>首先下载代码</p>
+<pre tabindex=0><code>source activate pytorch_p37
+cd SageMaker
+git clone https://github.com/jackie930/PyABSA.git
+</code></pre><p>将数据<code>data1119.csv</code>上传到<code>PyABSA/data/data1109.csv</code></p>
+<h2 id=模型训练>模型训练</h2>
+<p>数据准备</p>
+<pre tabindex=0><code>cd PyABSA
+pip install termcolor update_checker findfile jupyterlab-git torch==1.10.0 transformers==4.12.3 autocuda spacy googledrivedownloader seqeval emoji
+python pyabsa/utils/preprocess.py --inpath './data/data1109.csv' --folder_name 'custom_atepc_1109' --task 'aptepc'
+</code></pre><p>然后进行模型训练，演示目的，只训练一个epoch</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=color:#f92672>from</span> pyabsa.functional <span style=color:#f92672>import</span> ATEPCModelList
+<span style=color:#f92672>from</span> pyabsa.functional <span style=color:#f92672>import</span> Trainer, ATEPCTrainer
+<span style=color:#f92672>from</span> pyabsa.functional <span style=color:#f92672>import</span> ATEPCConfigManager
+
+atepc_config_custom <span style=color:#f92672>=</span> ATEPCConfigManager<span style=color:#f92672>.</span>get_atepc_config_chinese()
+atepc_config_custom<span style=color:#f92672>.</span>num_epoch <span style=color:#f92672>=</span> <span style=color:#ae81ff>2</span>
+atepc_config_custom<span style=color:#f92672>.</span>evaluate_begin <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>
+atepc_config_custom<span style=color:#f92672>.</span>log_step <span style=color:#f92672>=</span> <span style=color:#ae81ff>100</span>
+atepc_config_custom<span style=color:#f92672>.</span>model <span style=color:#f92672>=</span> ATEPCModelList<span style=color:#f92672>.</span>LCF_ATEPC
+
+aspect_extractor <span style=color:#f92672>=</span> ATEPCTrainer(config<span style=color:#f92672>=</span>atepc_config_custom, 
+                                dataset<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;./custom_atepc_1109&#39;</span>
+                                )
+</code></pre></div><p>训练完成后，模型评估</p>
+<pre tabindex=0><code>python utils/metrics_cacl.py --data_path --checkppoint
+</code></pre>
 <footer class=footline>
 </footer>
 </div>
 </div>
 <div id=navigation>
-<a class="nav nav-next" href=./01introduction.html title=Introduction style=margin-right:0><i class="fa fa-chevron-right"></i></a>
+<a class="nav nav-prev" href=./01introduction/300metrics.html title="1.3 评估指标"> <i class="fa fa-chevron-left"></i></a>
+<a class="nav nav-next" href=./02extraction/02train/_index-1.html title=抽取式ABSA模型训练 style=margin-right:0><i class="fa fa-chevron-right"></i></a>
 </div>
 </section>
 <div style=left:-1000px;overflow:scroll;position:absolute;top:-1000px;border:none;box-sizing:content-box;height:200px;margin:0;padding:0;width:200px>
