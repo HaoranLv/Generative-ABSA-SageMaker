@@ -28,5 +28,5 @@ COPY * /opt/program/
 COPY model/* /opt/program/model/
 WORKDIR /opt/program
 # RUN pip install -r requirements.txt
-ENTRYPOINT ["python", "serve.py"]
+ENTRYPOINT ["python", "predictor.py"]
 

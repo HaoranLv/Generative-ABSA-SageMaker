@@ -53,7 +53,7 @@ checkpoint = './model/cktepoch=15_v1.ckpt'
 model_ckpt = torch.load(checkpoint, map_location=device)
 model = T5FineTuner(model_ckpt['hyper_parameters'])
 model.load_state_dict(model_ckpt['state_dict'])
-tokenizer = T5Tokenizer.from_pretrained('lemon234071/t5-base-Chinese')
+tokenizer = T5Tokenizer.from_pretrained('lemon234071/t5-base-Chinese',mirror='tuna')
 
 model.model.to(device)
 model.model.eval()
@@ -133,5 +133,8 @@ def invocations():
     
     _payload = json.dumps(inference_result, ensure_ascii=False)
     return flask.Response(response=_payload, status=200, mimetype='application/json')
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=8080)
     
     
