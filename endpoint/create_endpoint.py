@@ -37,7 +37,7 @@ def parse_arguments():
         type=str,
         nargs="?",
         help="When set, this argument ",
-        default="ml.p3.2xlarge"
+        default="ml.g4dn.2xlarge"
     )
 
     return parser.parse_args()
