@@ -16,8 +16,8 @@ from pytorch_lightning import seed_everything
 from transformers import AdamW, T5ForConditionalGeneration, T5Tokenizer
 from transformers import get_linear_schedule_with_warmup
 
-from data_utils import ABSADataset
-from data_utils import write_results_to_log, read_line_examples_from_file
+from datasets_utils.data_utils import ABSADataset
+from datasets_utils.data_utils import write_results_to_log, read_line_examples_from_file
 from eval_utils import *
 
 pre=np.load('predictions.npy',allow_pickle=True)
