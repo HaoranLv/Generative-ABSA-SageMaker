@@ -1,0 +1,39 @@
+ARG REGISTRY_URI
+FROM ${REGISTRY_URI}/pytorch-inference:1.5.0-gpu-py36-cu101-ubuntu16.04
+
+RUN mkdir -p /opt/ml/model
+
+ENV PYTHONUNBUFFERED=TRUE
+ENV PYTHONDONTWRITEBYTECODE=TRUE
+ENV PATH="/opt/program:${PATH}"
+ENV G_ABSA /opt/ml/code/Generative-ABSA-SageMaker
+
+##########################################################################################
+# SageMaker requirements
+##########################################################################################
+## install flask
+RUN pip install networkx==2.3 flask gevent gunicorn boto3 transformers==4.6.0 datasets==1.11.0 sentencepiece==0.1.91 pytorch_lightning==0.8.1 jieba editdistance -i https://opentuna.cn/pypi/web/simple
+### Install nginx notebook
+RUN apt-get -y update && apt-get install -y --no-install-recommends \
+         wget \
+         nginx \
+         ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# forward request and error logs to docker log collector
+RUN ln -sf /dev/stdout /var/log/nginx/access.log
+RUN ln -sf /dev/stderr /var/log/nginx/error.log
+
+# Set up the program in the image
+WORKDIR /opt/ml/code
+RUN git clone https://github.com/HaoranLv/Generative-ABSA-SageMaker.git
+RUN pip install -r requirements.txt
+COPY container_training /opt/ml/code
+ENV SAGEMAKER_SUBMIT_DIRECTORY /opt/ml/code
+ENV SAGEMAKER_PROGRAM G_ABSA_train.py
+WORKDIR /
+# COPY * /opt/program/
+# COPY model/* /opt/program/model/
+# WORKDIR /opt/program
+# ENTRYPOINT ["python", "predictor.py"]
+

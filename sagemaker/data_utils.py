@@ -306,9 +306,9 @@ def get_transformed_io(data_path, paradigm, task):
 
 
 class ABSADataset(Dataset):
-    def __init__(self, data_root, tokenizer, data_dir, data_type, paradigm, task, max_len=512):
+    def __init__(self, tokenizer, data_dir, data_type, paradigm, task, max_len=512):
         # 'data/aste/rest16/train.txt'
-        self.data_path = f'{data_root}/{task}/{data_dir}/{data_type}.txt'
+        self.data_path = f'data/{task}/{data_dir}/{data_type}.txt'
         self.paradigm = paradigm
         self.task = task
         self.max_len = max_len

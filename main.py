@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 import pytorch_lightning as pl
 from pytorch_lightning import seed_everything
 from transformers import  T5Tokenizer
-from datasets_utils.data_utils import ABSADataset
+# from datasets_utils.data_utils import ABSADataset
 from datasets_utils.data_utils import write_results_to_log, read_line_examples_from_file
 from eval_utils import *
 from models import *
@@ -21,6 +21,8 @@ def init_args():
     # basic settings
     parser.add_argument("--task", default='tasd-cn', type=str, required=True,
                         help="The name of the task, selected from: [uabsa, aste, tasd, aope]")
+    parser.add_argument("--data_root", default='./data', type=str, required=True,
+                        help="The path of data root")
     parser.add_argument("--ckpoint_path", default='./outputs/tasd-cn/ctrip/extraction/cktepoch=1.ckpt', type=str, required=False)
     parser.add_argument("--text", default='早餐一般般，勉勉强强填饱肚子，样式可选性不多，可能是疫情的影响吧。不过酒店的服务不错，五个小孩早餐都送了，点👍。由于酒店历史有点长，所以设施感觉一般般，整体还可以，三钻吧', type=str, required=False)
     parser.add_argument("--dataset", default='ctrip', type=str, required=True,
@@ -91,7 +93,7 @@ if __name__ == "__main__":
 
     # show one sample to check the sanity of the code and the expected output
     print(f"Here is an example (from dev set) under `{args.paradigm}` paradigm:")
-    dataset = ABSADataset(tokenizer=tokenizer, data_dir=args.dataset, data_type='dev',
+    dataset = ABSADataset(data_root=args.data_root,tokenizer=tokenizer, data_dir=args.dataset, data_type='dev',
                           paradigm=args.paradigm, task=args.task, max_len=args.max_seq_length)
     data_sample = dataset[2]  # a random data sample
     print('Input :', tokenizer.decode(data_sample['source_ids'], skip_special_tokens=True))
@@ -147,11 +149,11 @@ if __name__ == "__main__":
         print(f"We will perform validation on the following checkpoints: {all_checkpoints}")
 
         # load dev and test datasets
-        dev_dataset = ABSADataset(tokenizer, data_dir=args.dataset, data_type='dev',
+        dev_dataset = ABSADataset(args.data_root, tokenizer, data_dir=args.dataset, data_type='dev',
                                   paradigm=args.paradigm, task=args.task, max_len=args.max_seq_length)
         dev_loader = DataLoader(dev_dataset, batch_size=32, num_workers=0)
 
-        test_dataset = ABSADataset(tokenizer, data_dir=args.dataset, data_type='test',
+        test_dataset = ABSADataset(args.data_root, tokenizer, data_dir=args.dataset, data_type='test',
                                    paradigm=args.paradigm, task=args.task, max_len=args.max_seq_length)
         test_loader = DataLoader(test_dataset, batch_size=32, num_workers=0)
 
@@ -217,8 +219,8 @@ if __name__ == "__main__":
 
         # print("Reload the model")
         # model.model.from_pretrained(args.output_dir)
-        sents, _ = read_line_examples_from_file(f'data/{args.task}/{args.dataset}/test.txt')
-        test_dataset = ABSADataset(tokenizer, data_dir=args.dataset, data_type='test',
+        sents, _ = read_line_examples_from_file(os.path.join(args.data_dir,f'{args.task}/{args.dataset}/test.txt'))
+        test_dataset = ABSADataset(args.data_root, tokenizer, data_dir=args.dataset, data_type='test',
                                    paradigm=args.paradigm, task=args.task, max_len=args.max_seq_length)
         test_loader = DataLoader(test_dataset, batch_size=32, num_workers=0)
 #         print(test_loader.device)
@@ -235,23 +237,23 @@ if __name__ == "__main__":
 #         with open(log_file_path, "a+") as f:
 #             f.write(log_str)
 # prediction process
-if args.do_direct_predict:
-    print("\n****** Conduct predicting with the last state ******")
-    checkpoint=args.ckpoint_path
-    print(f"\nLoad the trained model from {checkpoint}...")
-    device=torch.device(f'cuda:{args.n_gpu}')
-    model_ckpt = torch.load(checkpoint,map_location=device)
-    model = T5FineTuner(model_ckpt['hyper_parameters'])
-    model.load_state_dict(model_ckpt['state_dict'])
-    tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path)
+    if args.do_direct_predict:
+        print("\n****** Conduct predicting with the last state ******")
+        checkpoint=args.ckpoint_path
+        print(f"\nLoad the trained model from {checkpoint}...")
+        device=torch.device(f'cuda:{args.n_gpu}')
+        model_ckpt = torch.load(checkpoint,map_location=device)
+        model = T5FineTuner(model_ckpt['hyper_parameters'])
+        model.load_state_dict(model_ckpt['state_dict'])
+        tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path)
     
-    sents=[args.text]
+        sents=[args.text]
 
-    s=time.time()
-    for i in sents:
+        s=time.time()
+        for i in sents:
     # # print(test_loader.device)
-        pred = predict(i, tokenizer,model, args.n_gpu, args.max_seq_length)
-        print('sents:',i)
-        print('pred:',pred)
-    e=time.time()
-    print(e-s)
+            pred = predict(i, tokenizer,model, args.n_gpu, args.max_seq_length)
+            print('sents:',i)
+            print('pred:',pred)
+        e=time.time()
+        print(e-s)
