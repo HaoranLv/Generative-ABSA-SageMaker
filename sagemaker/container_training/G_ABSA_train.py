@@ -316,8 +316,6 @@ if __name__ == "__main__":
     launch_config = [ "MASTER_ADDR={}".format(world['master_addr']), 
                      "MASTER_PORT={}".format(world['master_port']), 
                      "WORLD_SIZE={}".format(world["size"]), 
-                     "NODE_RANK={}".format(world['machine_rank']), 
-                     "LOCAL_RANK=LOCAL_PROCESS_RANK", 
                     ]
  
     train_config = ['python', os.path.join(os.environ["G_ABSA"], "main.py"), 
@@ -331,14 +329,14 @@ if __name__ == "__main__":
                     "--eval_batch_size",args.eval_batch_size,
                     "--learning_rate", args.learning_rate,
                     "--num_train_epochs", args.num_train_epochs,
-                    "--nodes", args.nodes ]
+                    "--nodes", args.nodes]
     
     if not args.validate:
         train_config.append("--no-validate")
 
     # Concat Pytorch Distributed Launch config and MMaction2 config
-    # joint_cmd = " ".join(str(x) for x in launch_config+train_config)
-    joint_cmd = " ".join(str(x) for x in train_config)
+    joint_cmd = " ".join(str(x) for x in launch_config+train_config)
+    # joint_cmd = " ".join(str(x) for x in train_config)
     print("Following command will be executed: \n", joint_cmd)
     
     process = subprocess.Popen(joint_cmd,  stderr=subprocess.STDOUT, stdout=subprocess.PIPE, shell=True)
