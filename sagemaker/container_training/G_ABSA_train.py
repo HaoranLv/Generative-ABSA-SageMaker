@@ -331,8 +331,6 @@ if __name__ == "__main__":
                     "--num_train_epochs", args.num_train_epochs,
                     "--nodes", args.nodes]
     
-    if not args.validate:
-        train_config.append("--no-validate")
 
     # Concat Pytorch Distributed Launch config and MMaction2 config
     joint_cmd = " ".join(str(x) for x in launch_config+train_config)
