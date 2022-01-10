@@ -51,6 +51,8 @@ def init_args():
     # basic settings
     parser.add_argument("--task", default='tasd-cn', type=str, required=True,
                         help="The name of the task, selected from: [uabsa, aste, tasd, aope]")
+    parser.add_argument("--nodes", default=1, type=int, required=True,
+                        help="The name of the task, selected from: [uabsa, aste, tasd, aope]")
     parser.add_argument("--data_root", default=os.environ["SM_CHANNEL_TRAINING"], type=str, required=True,
                         help="The path of data root")
     parser.add_argument("--ckpoint_path", default='./outputs/tasd-cn/ctrip/extraction/cktepoch=1.ckpt', type=str, required=False)
@@ -328,7 +330,8 @@ if __name__ == "__main__":
                     "--gradient_accumulation_steps",args.gradient_accumulation_steps,
                     "--eval_batch_size",args.eval_batch_size,
                     "--learning_rate", args.learning_rate,
-                    "--num_train_epochs", args.num_train_epochs]
+                    "--num_train_epochs", args.num_train_epochs,
+                    "--nodes", args.nodes ]
     
     if not args.validate:
         train_config.append("--no-validate")
