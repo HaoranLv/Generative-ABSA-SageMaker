@@ -14,7 +14,7 @@ from datasets_utils import *
 
 
 def get_dataset(tokenizer, type_path, args):
-    return ABSADataset(tokenizer=tokenizer, data_dir=args.dataset, data_type=type_path,
+    return ABSADataset(args.data_root, tokenizer=tokenizer, data_dir=args.dataset, data_type=type_path,
                        paradigm=args.paradigm, task=args.task, max_len=args.max_seq_length)
 
 class T5FineTuner(pl.LightningModule):
