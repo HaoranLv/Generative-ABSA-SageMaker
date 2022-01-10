@@ -21,6 +21,8 @@ def init_args():
     # basic settings
     parser.add_argument("--task", default='tasd-cn', type=str, required=True,
                         help="The name of the task, selected from: [uabsa, aste, tasd, aope]")
+    parser.add_argument("--out_dir", default=os.environ["SM_OUTPUT_DATA_DIR"], type=str, required=True,
+                        help="The name of the task, selected from: [uabsa, aste, tasd, aope]")
     parser.add_argument("--nodes", default=1, type=int, required=True,
                         help="The name of the task, selected from: [uabsa, aste, tasd, aope]")
     parser.add_argument("--data_root", default='./data', type=str, required=False,

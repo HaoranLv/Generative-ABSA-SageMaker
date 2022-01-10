@@ -49,6 +49,8 @@ def init_args():
     # basic settings
     parser.add_argument("--task", default='tasd-cn', type=str, required=True,
                         help="The name of the task, selected from: [uabsa, aste, tasd, aope]")
+    parser.add_argument("--out_dir", default=os.environ["SM_OUTPUT_DATA_DIR"], type=str, required=True,
+                        help="The name of the task, selected from: [uabsa, aste, tasd, aope]")
     parser.add_argument("--nodes", default=1, type=int, required=True,
                         help="The name of the task, selected from: [uabsa, aste, tasd, aope]")
     parser.add_argument("--data_root", default=os.environ["SM_CHANNEL_TRAINING"], type=str, required=True,
@@ -98,7 +100,7 @@ def init_args():
     #     os.mkdir('./outputs')
     
     # task_dir = f"./outputs/{args.task}"
-    task_dir = os.path.join(os.environ["SM_OUTPUT_DATA_DIR"], f"{args.task}")
+    task_dir = os.path.join(args.out_dir, f"{args.task}")
     if not os.path.exists(task_dir):
         os.mkdir(task_dir)
 
@@ -314,6 +316,7 @@ if __name__ == "__main__":
     launch_config = [ "MASTER_ADDR={}".format(world['master_addr']), 
                      "MASTER_PORT={}".format(world['master_port']), 
                      "WORLD_SIZE={}".format(world["size"]), 
+                     "NODE_RANK={}".format(world["machine_rank"]),
                     ]
  
     train_config = ['python', os.path.join(os.environ["G_ABSA"], "main.py"), 
@@ -328,16 +331,20 @@ if __name__ == "__main__":
                     "--eval_batch_size",args.eval_batch_size,
                     "--learning_rate", args.learning_rate,
                     "--num_train_epochs", args.num_train_epochs,
-                    "--nodes", args.nodes]
+                    "--nodes", args.nodes,
+                    "--out_dir", args.out_dir]
     
 
     # Concat Pytorch Distributed Launch config and MMaction2 config
     joint_cmd = " ".join(str(x) for x in launch_config+train_config)
     # joint_cmd = " ".join(str(x) for x in train_config)
     print("Following command will be executed: \n", joint_cmd)
+    processes=[]
+    for i in range(int(os.environ["SM_NUM_GPUS"])):
+        processes.append(subprocess.Popen("LOCAL_RANK={} ".format(i)+joint_cmd,  stderr=subprocess.STDOUT, stdout=subprocess.PIPE, shell=True))
     
-    process = subprocess.Popen(joint_cmd,  stderr=subprocess.STDOUT, stdout=subprocess.PIPE, shell=True)
-    
+    # process = subprocess.Popen("LOCAL_RANK=0 "+joint_cmd,  stderr=subprocess.STDOUT, stdout=subprocess.PIPE, shell=True)
+    process=processes[0]
     while True:
         output = process.stdout.readline()
         
