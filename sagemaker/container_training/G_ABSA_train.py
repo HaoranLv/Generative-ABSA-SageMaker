@@ -324,7 +324,6 @@ if __name__ == "__main__":
                     "--model_name_or_path", args.model_name_or_path,
                     "--n_gpu", args.n_gpu,
                     "--do_train",
-                    "--do_direct_eval",
                     "--train_batch_size",args.train_batch_size,
                     "--gradient_accumulation_steps",args.gradient_accumulation_steps,
                     "--eval_batch_size",args.eval_batch_size,

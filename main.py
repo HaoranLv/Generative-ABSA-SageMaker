@@ -21,7 +21,7 @@ def init_args():
     # basic settings
     parser.add_argument("--task", default='tasd-cn', type=str, required=True,
                         help="The name of the task, selected from: [uabsa, aste, tasd, aope]")
-    parser.add_argument("--data_root", default='./data', type=str, required=True,
+    parser.add_argument("--data_root", default='./data', type=str, required=False,
                         help="The path of data root")
     parser.add_argument("--ckpoint_path", default='./outputs/tasd-cn/ctrip/extraction/cktepoch=1.ckpt', type=str, required=False)
     parser.add_argument("--text", default='早餐一般般，勉勉强强填饱肚子，样式可选性不多，可能是疫情的影响吧。不过酒店的服务不错，五个小孩早餐都送了，点👍。由于酒店历史有点长，所以设施感觉一般般，整体还可以，三钻吧', type=str, required=False)
@@ -33,7 +33,7 @@ def init_args():
                         help="Path to pre-trained model or shortcut name")
     parser.add_argument("--save_total_limit", default=5, type=int,
                         help="Path to pre-trained model or shortcut name")
-    parser.add_argument("--paradigm", default='extraction', type=str, required=True,
+    parser.add_argument("--paradigm", default='extraction', type=str, required=False,
                         help="The way to construct target sentence, selected from: [annotation, extraction]")
     parser.add_argument("--do_train", action='store_true', help="Whether to run training.")
     parser.add_argument("--do_eval", action='store_true', help="Whether to run eval on the dev/test set.")
@@ -110,9 +110,11 @@ if __name__ == "__main__":
 
         # prepare for trainer
         train_params = dict(
+            num_nodes=1,
+            distributed_backend='ddp',
             default_root_dir=args.output_dir,
             accumulate_grad_batches=args.gradient_accumulation_steps,
-            gpus=args.n_gpu,
+            gpus=int(args.n_gpu),
             gradient_clip_val=1.0,
             # amp_level='O1',
             max_epochs=args.num_train_epochs,
