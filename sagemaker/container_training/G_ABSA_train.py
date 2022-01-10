@@ -1,7 +1,5 @@
 from argparse import ArgumentParser
 import os
-from mmcv import Config
-from mmcv.runner import set_random_seed
 import json
 import subprocess
 import sys
