@@ -318,6 +318,7 @@ if __name__ == "__main__":
  
     train_config = ['python', os.path.join(os.environ["G_ABSA"], "main.py"), 
                     "--dataset", args.dataset,
+                    "--data_root", args.data_root,
                     "--task", args.task,
                     "--model_name_or_path", args.model_name_or_path,
                     "--n_gpu", args.n_gpu,
