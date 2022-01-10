@@ -68,8 +68,8 @@ def init_args():
     args = parser.parse_args()
 
     # set up output dir which looks like './aste/rest14/extraction/'
-    if not os.path.exists('./outputs'):
-        os.mkdir('./outputs')
+    # if not os.path.exists('./outputs'):
+    #     os.mkdir('./outputs')
 
     task_dir = os.path.join(args.out_dir, f"{args.task}")
     if not os.path.exists(task_dir):
