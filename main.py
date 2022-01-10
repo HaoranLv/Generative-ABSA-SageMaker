@@ -71,7 +71,7 @@ def init_args():
     if not os.path.exists('./outputs'):
         os.mkdir('./outputs')
 
-    task_dir = f"./outputs/{args.task}"
+    task_dir = os.path.join(args.out_dir, f"{args.task}")
     if not os.path.exists(task_dir):
         os.mkdir(task_dir)
 
