@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
         # prepare for trainer
         train_params = dict(
-            num_nodes=1,
+            num_nodes=2,
             distributed_backend='ddp',
             default_root_dir=args.output_dir,
             accumulate_grad_batches=args.gradient_accumulation_steps,
