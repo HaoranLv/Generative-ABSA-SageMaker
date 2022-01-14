@@ -1,5 +1,5 @@
 ARG REGISTRY_URI
-FROM ${REGISTRY_URI}/pytorch-inference:1.5.0-gpu-py36-cu101-ubuntu16.04
+FROM ${REGISTRY_URI}/pytorch-training:1.5.0-gpu-py36-cu101-ubuntu16.04
 
 RUN mkdir -p /opt/ml/model
 
@@ -27,6 +27,7 @@ RUN ln -sf /dev/stderr /var/log/nginx/error.log
 # Set up the program in the image
 WORKDIR /opt/ml/code
 RUN git clone https://github.com/HaoranLv/Generative-ABSA-SageMaker.git
+COPY requirements.txt /opt/ml/code
 RUN pip install -r requirements.txt
 COPY container_training /opt/ml/code
 ENV SAGEMAKER_SUBMIT_DIRECTORY /opt/ml/code

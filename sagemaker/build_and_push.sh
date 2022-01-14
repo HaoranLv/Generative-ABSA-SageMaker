@@ -59,7 +59,7 @@ $(aws ecr get-login --registry-ids ${account} --region ${region} --no-include-em
 $(aws ecr get-login --registry-ids ${registry_id} --region ${region} --no-include-email)
 
 # Build the docker image, tag with full name and then push it to ECR
-docker build -t ${image} -f Dockerfile . --build-arg REGISTRY_URI=${registry_uri}
+docker build -t ${image} -f Dockerfile.training . --build-arg REGISTRY_URI=${registry_uri}
 docker tag ${image} ${fullname}
 docker push ${fullname}
 
